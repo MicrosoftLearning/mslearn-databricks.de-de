@@ -13,7 +13,7 @@ Diese Übung dauert ca. **40** Minuten.
 
 > **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt, und geht davon aus, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen.
+Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen.
 
 1. Melden Sie sich in einem Webbrowser beim [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
 2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
@@ -107,7 +107,7 @@ Um Azure Databricks aus einer Azure Data Factory-Pipeline zu verwenden, müssen 
 
 ### Erstellen eines verknüpften Diensts in Azure Data Factory
 
-1. Kehren Sie zum Azure-Portal zurück, und wählen Sie in der Ressourcengruppe **dp203-*xxxxxxx*** die Azure Data Factory-Ressource **adf*xxxxxxx*** aus.
+1. Kehren Sie zum Azure-Portal zurück und wählen Sie in der Ressourcengruppe **msl-*xxxxxxx*** die Azure Data Factory-Ressource **adf*xxxxxxx*** aus.
 2. Wählen Sie auf der Seite **Übersicht** die Option **Studio starten** aus, um das Azure Data Factory Studio zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
 3. Verwenden Sie in Azure Data Factory Studio das Symbol **>>**, um den Navigationsbereich auf der linken Seite zu erweitern. Wählen Sie dann die Seite **Verwalten** aus.
 4. Wählen Sie auf der Seite **Verwalten** auf der Registerkarte **Verknüpfte Dienste** die Option **+ Neu** aus, um einen neuen verknüpften Dienst hinzuzufügen.
@@ -158,6 +158,7 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
     > **Hinweis**: Wenn Ihre Pipeline nicht ausgeführt werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird, um einen Auftragscluster zu erstellen. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./setup.ps1 eastus`
 
 4. Wenn die Ausführung erfolgreich ist, wählen Sie ihren Namen aus, um die Ausführungsdetails anzuzeigen. Wählen Sie dann auf der Seite **Daten mit Databricks verarbeiten** im Abschnitt **Aktivitätsausführungen** die Aktivität **Daten verarbeiten** aus, und verwenden Sie das zugehörige Symbol ***Ausgabe***, um den JSON-Ausgabe-Code aus der Aktivität anzuzeigen. Dieser sollte wie folgt aussehen:
+
     ```json
     {
         "runPageUrl": "https://adb-..../run/...",

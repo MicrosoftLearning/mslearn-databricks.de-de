@@ -8,8 +8,8 @@ layout: home
 
 Diese Übungen sind dafür konzipiert, die folgenden Schulungsinhalte auf Microsoft Learn zu unterstützen:
 
-- [Data Engineering mit Azure Databricks](https://learn.microsoft.com/training/paths/data-engineer-azure-databricks/)
-- [Maschinelles Lernen mit Azure Databricks](https://learn.microsoft.com/training/paths/build-operate-machine-learning-solutions-azure-databricks/)
+- [Implementieren einer Datenanalyselösung mit Azure Databricks](https://learn.microsoft.com/training/paths/data-engineer-azure-databricks/)
+- [Implementieren einer Machine Learning-Lösung mit Azure Databricks](https://learn.microsoft.com/training/paths/build-operate-machine-learning-solutions-azure-databricks/)
 
 Um diese Übungen abzuschließen, benötigen Sie ein Azure-Abonnement, in dem Sie über Administratorzugriff verfügen.
 
