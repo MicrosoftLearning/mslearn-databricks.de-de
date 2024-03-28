@@ -78,7 +78,7 @@ Wie in vielen Spark-Umgebungen unterstützt Databricks die Verwendung von Notebo
 
 ### Einlesen von Daten
 
-1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shell*-Befehlen die Datendateien von GitHub in das von Ihrem Cluster verwendete Databricks-Dateisystem (Databricks File System, DBFS) herunterlädt.
+1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shell*-Befehlen die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
     ```python
     %sh
@@ -89,7 +89,7 @@ Wie in vielen Spark-Umgebungen unterstützt Databricks die Verwendung von Notebo
     wget -O /dbfs/spark_lab/2021.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/2021.csv
     ```
 
-1. Verwenden Sie die Menüoption **&#9656; Zelle ausführen** oben rechts in der folgenden Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
 
 ### Abfragen von Daten in Dateien
 
