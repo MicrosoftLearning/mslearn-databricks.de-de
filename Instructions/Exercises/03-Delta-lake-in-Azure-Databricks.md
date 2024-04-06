@@ -13,9 +13,9 @@ Dieses Lab dauert ungefähr **40** Minuten.
 
 > **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen.
+Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Melden Sie sich in einem Webbrowser beim [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
+1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
 2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
@@ -73,7 +73,7 @@ Jetzt erstellen wir ein Spark Notebook und importieren die Daten, mit denen wir 
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
 1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **Explore Delta Lake**, und wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, sofern er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
-1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shell*-Befehlen die Datendateien von GitHub in das von Ihrem Cluster verwendete Databricks-Dateisystem (Databricks File System, DBFS) herunterlädt.
+1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
     ```python
     %sh
@@ -82,7 +82,7 @@ Jetzt erstellen wir ein Spark Notebook und importieren die Daten, mit denen wir 
     wget -O /dbfs/delta_lab/products.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv
     ```
 
-1. Verwenden Sie die Menüoption **&#9656; Zelle ausführen** oben rechts in der folgenden Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+1. Verwenden Sie Menüoption **&#9656; Zelle ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
 1. Verwenden Sie unter der vorhandenen Codezelle das Symbol **+**, um eine neue Codezelle hinzuzufügen. Geben Sie dann in die neue Zelle den folgenden Code ein, und führen Sie ihn aus, um die Daten aus der Datei zu laden und die ersten 10 Zeilen anzuzeigen.
 
     ```python
@@ -156,8 +156,8 @@ Datenänderungen werden protokolliert, sodass Sie die *time-travel*-Funktionen v
 
 Bisher haben Sie mit Delta-Tabellen gearbeitet, indem Sie Daten aus dem Ordner mit den Parquet-Dateien laden, auf denen die Tabelle basiert. Sie können *Katalogtabellen* definieren, die die Daten kapseln und eine benannte Tabellenentität bereitstellen, auf die Sie im SQL-Code verweisen können. Spark unterstützt zwei Arten von Katalogtabellen für Delta Lake:
 
-- *Externe* Tabellen, die durch den Pfad zu den Parquet-Dateien mit den Tabellendaten definiert werden.
-- *Verwaltete* Tabellen, die im Hive-Metastore für den Spark-Cluster definiert sind.
+- *Externe* Tabellen, die durch den Pfad zu den Dateien definiert werden, die die Tabellendaten enthalten
+- *Verwaltete* Tabellen, die im Metastore definiert sind
 
 ### Erstellen einer externen Tabelle
 
@@ -188,7 +188,7 @@ Bisher haben Sie mit Delta-Tabellen gearbeitet, indem Sie Daten aus dem Ordner m
    spark.sql("DESCRIBE EXTENDED AdventureWorks.ProductsManaged").show(truncate=False)
     ```
 
-    Sie haben keinen Pfad für die von der Tabelle verwendeten Parquet-Dateien angegeben. Dieser wird für Sie im Hive-Metastore verwaltet und in der **Location**-Eigenschaft in der Tabellenbeschreibung (im Pfad **dbfs:/user/hive/warehouse/**) angezeigt.
+    Sie haben keinen Pfad für die von der Tabelle verwendeten Parquet-Dateien angegeben. Dieser wird für Sie im Hive-Metastore verwaltet und in der **Location**-Eigenschaft in der Tabellenbeschreibung angezeigt.
 
 1. Verwenden Sie den folgenden Code, um die verwaltete Tabelle abzufragen, und beachten Sie, dass die Syntax dieselbe ist wie bei einer verwalteten Tabelle:
 

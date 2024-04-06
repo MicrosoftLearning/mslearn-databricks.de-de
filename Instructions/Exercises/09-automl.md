@@ -17,9 +17,9 @@ Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem 
 
 > **Hinweis:** Für diese Übung benötigen Sie einen Azure Databricks-Arbeitsbereich im **Premium**-Tarif in einer Region, in der die *Modellbereitstellung* unterstützt wird. Details zu regionalen Azure Databricks-Funktionen finden Sie unter [Azure Databricks-Regionen](https://learn.microsoft.com/azure/databricks/resources/supported-regions). Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich im *Premium*-Tarif oder als*Testversion* in einer geeigneten Region verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt, und geht davon aus, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen.
+Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-1. Melden Sie sich in einem Webbrowser beim [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
+1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
 2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
@@ -48,9 +48,9 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
 Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie sie verwenden, um diese Übung abzuschließen und dieses Verfahren zu überspringen.
+> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
 
-1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält)
+1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält).
 1. Wählen Sie die Ressource Ihres Azure Databricks-Diensts aus (sie trägt den Namen **databricks-*xxxxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben).
 1. Verwenden Sie auf der Seite **Übersicht** für Ihren Arbeitsbereich die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich auf einer neuen Browserregisterkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
 
@@ -62,10 +62,10 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Richtlinie:** Unrestricted
     - **Clustermodus**: Einzelknoten
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
-    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Beta-Version der Runtime aus (**Nicht** eine standardmäßige Runtimeversion), die:*
-        - *Verwendet **keinen** GPU*
+    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Betaversion der Runtime aus (**Nicht** eine Standard-Runtimeversion), die folgende Kriterien erfüllt:*
+        - *Verwendet **keine** GPU*
         - *Umfasst Scala > **2.11***
-        - *Umfasst Spark > **3.4-***
+        - *Umfasst Spark > **3.4***
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
     - **Knotentyp**: Standard_DS3_v2
     - **Beenden nach** *20* **Minuten Inaktivität**
@@ -131,7 +131,7 @@ Nachdem Sie ein Experiment für automatisiertes maschinelles Lernen ausgeführt 
 
     Der Bereitstellungsendpunkt wird in einem neuen Cluster gehostet, dessen Erstellung einige Minuten dauern kann.
   
-1. Wenn der Endpunkt erstellt wurde, verwenden Sie die Schaltfläche **Abfrageendpunkt** oben rechts, um eine Schnittstelle zu öffnen, über die Sie den Endpunkt testen können. Geben Sie dann in der Testschnittstelle auf der Registerkarte **Browser** die folgende JSON-Anforderung ein, und verwenden Sie die Schaltfläche **Anforderung senden**, um den Endpunkt aufzurufen und eine Vorhersage zu generieren.
+1. Wenn der Endpunkt erstellt worden ist, verwenden Sie die Schaltfläche **Abfrageendpunkt** oben rechts, um eine Schnittstelle zu öffnen, über die Sie den Endpunkt testen können. Geben Sie dann in der Testschnittstelle auf der Registerkarte **Browser** die folgende JSON-Anforderung ein, und verwenden Sie die Schaltfläche **Anforderung senden**, um den Endpunkt aufzurufen und eine Vorhersage zu generieren.
 
     ```json
     {
@@ -147,7 +147,7 @@ Nachdem Sie ein Experiment für automatisiertes maschinelles Lernen ausgeführt 
     }
     ```
 
-1. Experimentieren Sie mit einigen unterschiedlichen Werten für die Pinguinfeatures, und beobachten Sie die zurückgegebenen Ergebnisse. Schließen Sie dann die Testschnittstelle.
+1. Experimentieren Sie mit einigen unterschiedlichen Werten für die Pinguinmerkmale, und beobachten Sie die zurückgegebenen Ergebnisse. Schließen Sie dann die Testschnittstelle.
 
 ## Löschen des Endpunkts
 
@@ -157,7 +157,7 @@ Wählen Sie auf der Endpunktseite **classify-penguin** im Menü **&#8285;** Men�
 
 ## Bereinigung
 
-Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn zu beenden.
+Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
 
 Wenn Sie die Erkundung von Azure Databricks abgeschlossen haben, löschen Sie die erstellten Ressourcen, um unnötige Azure-Kosten zu vermeiden und Kapazität in Ihrem Abonnement freizugeben.
 
