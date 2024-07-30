@@ -1,0 +1,184 @@
+---
+lab:
+  title: Echtzeiterfassung und -verarbeitung mit Spark Structured Streaming und Delta Lake mit Azure Databricks
+---
+
+# Echtzeiterfassung und -verarbeitung mit Spark Structured Streaming und Delta Lake mit Azure Databricks
+
+Spark Structured Streaming ermöglicht Ihnen die Verarbeitung von Daten in Echtzeit mit End-to-End-Fehlertoleranz. Delta Lake verbessert dies durch die Bereitstellung einer Speicherebene mit ACID-Transaktionen, die die Datenintegrität und Konsistenz sicherstellt. Sie können Daten aus dem Cloudspeicher in Delta Lake erfassen und Delta Live Tables verwenden, um Ihre Streamingdatenpipelinen zu verwalten und zu optimieren.
+
+Dieses Lab dauert ungefähr **30** Minuten.
+
+## Bereitstellen eines Azure Databricks-Arbeitsbereichs
+
+> **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
+
+Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
+
+1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
+
+2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
+
+    ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
+
+    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+
+3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
+
+4. Geben Sie im PowerShell-Bereich die folgenden Befehle ein, um dieses Repository zu klonen:
+
+    ```powershell
+    rm -r mslearn-databricks -f
+    git clone https://github.com/MicrosoftLearning/mslearn-databricks
+    ```
+
+5. Nachdem das Repository geklont wurde, geben Sie den folgenden Befehl ein, um das Skript **setup.ps1** auszuführen, das einen Azure Databricks-Arbeitsbereich in einer verfügbaren Region bereitstellt:
+
+     ```powershell
+    ./mslearn-databricks/setup.ps1
+     ```
+
+6. Wenn Sie dazu aufgefordert werden, wählen Sie aus, welches Abonnement Sie verwenden möchten (dies geschieht nur, wenn Sie Zugriff auf mehrere Azure-Abonnements haben).
+
+7. Warten Sie, bis das Skript abgeschlossen ist. Dies dauert in der Regel etwa 5 Minuten, in einigen Fällen kann es jedoch länger dauern. Während Sie warten, lesen Sie den Artikel [Einführung in Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) in der Azure Databricks-Dokumentation.
+
+## Erstellen eines Clusters
+
+Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
+
+> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen und dieses Verfahren zu überspringen.
+
+1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält).
+
+1. Wählen Sie die Ressource Ihres Azure Databricks-Diensts aus (sie trägt den Namen **databricks-*xxxxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben).
+
+1. Verwenden Sie auf der Seite **Übersicht** für Ihren Arbeitsbereich die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich auf einer neuen Browserregisterkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
+
+    > **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
+
+1. Wählen Sie zunächst in der Randleiste auf der linken Seite die Aufgabe **(+) Neu** und dann **Cluster** aus.
+
+1. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
+    - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
+    - **Richtlinie:** Unrestricted
+    - **Clustermodus**: Einzelknoten
+    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
+    - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
+    - **Photonbeschleunigung verwenden**: Ausgewählt
+    - **Knotentyp**: Standard_DS3_v2
+    - **Beenden nach** *20* **Minuten Inaktivität**
+
+1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
+
+    > **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
+
+## Erstellen eines Notebook und Erfassen von Daten
+
+Sie können Notizbücher in Ihrem Azure Databricks-Arbeitsbereich erstellen, um Code auszuführen, der in einer Reihe von Programmiersprachen geschrieben wurde. In dieser Übung erstellen Sie ein einfaches Notebook, das Daten aus einer Datei erfasst und in einem Ordner im Databricks-Dateisystem (Databricks File System, DBFS) speichert.
+
+1. Zeigen Sie das Azure Databricks-Arbeitsbereichsportal an, und beachten Sie, dass die Randleiste auf der linken Seite Symbole für die verschiedenen Aufgaben enthält, die Sie ausführen können.
+
+1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
+   
+1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **RealTimeIngestion**.
+
+1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
+
+     ```python
+    %sh
+    rm -r /dbfs/device_stream
+    mkdir /dbfs/device_stream
+    wget -O /dbfs/device_stream/devices1.json https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/devices1.json
+     ```
+
+1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+
+## Verwenden von Delta-Tabellen zum Streamen von Daten
+
+Delta Lake unterstützt das *Streamen* von Daten. Deltatabellen können eine *Senke* oder *Quelle* für Datenströme sein, die mit der Spark Structured Streaming-API erstellt wurden. In diesem Beispiel verwenden Sie eine Deltatabelle als Senke für einige Streamingdaten in einem simulierten IoT-Szenario (Internet der Dinge). Die simulierten Gerätedaten liegen wie folgt im JSON-Format vor:
+
+```json
+{"device":"Dev1","status":"ok"}
+{"device":"Dev1","status":"ok"}
+{"device":"Dev1","status":"ok"}
+{"device":"Dev2","status":"error"}
+{"device":"Dev1","status":"ok"}
+{"device":"Dev1","status":"error"}
+{"device":"Dev2","status":"ok"}
+{"device":"Dev2","status":"error"}
+{"device":"Dev1","status":"ok"}
+```
+
+1. Führen Sie den folgenden Code in einer neuen Zelle aus, um einen Datenstrom basierend auf dem Ordner, der die JSON-Gerätedaten enthält, zu erstellen:
+
+    ```python
+   from pyspark.sql.types import *
+   from pyspark.sql.functions import *
+   
+   # Create a stream that reads data from the folder, using a JSON schema
+   inputPath = '/device_stream/'
+   jsonSchema = StructType([
+   StructField("device", StringType(), False),
+   StructField("status", StringType(), False)
+   ])
+   iotstream = spark.readStream.schema(jsonSchema).option("maxFilesPerTrigger", 1).json(inputPath)
+   print("Source stream created...")
+    ```
+
+1. Fügen Sie eine neue Codezelle hinzu, und verwenden Sie diese, um den Datenstrom dauerhaft in einen Delta-Ordner zu schreiben:
+
+    ```python
+   # Write the stream to a delta table
+   delta_stream_table_path = '/delta/iotdevicedata'
+   checkpointpath = '/delta/checkpoint'
+   deltastream = iotstream.writeStream.format("delta").option("checkpointLocation", checkpointpath).start(delta_stream_table_path)
+   print("Streaming to delta sink...")
+    ```
+
+1. Fügen Sie Code hinzu, um die Daten zu lesen, genau wie bei jedem anderen Delta-Ordner:
+
+    ```python
+   # Read the data in delta format into a dataframe
+   df = spark.read.format("delta").load(delta_stream_table_path)
+   display(df)
+    ```
+
+1. Fügen Sie den folgenden Code hinzu, um eine Tabelle basierend auf dem Delta-Ordner, in den die Streamingdaten geschrieben werden, zu erstellen:
+
+    ```python
+   # create a catalog table based on the streaming sink
+   spark.sql("CREATE TABLE IotDeviceData USING DELTA LOCATION '{0}'".format(delta_stream_table_path))
+    ```
+
+1. Verwenden Sie den folgenden Code, um die Tabelle abzufragen:
+
+    ```sql
+   %sql
+   SELECT * FROM IotDeviceData;
+    ```
+
+1. Führen Sie den folgenden Code aus, um dem Datenstrom einige neue Gerätedaten hinzuzufügen:
+
+    ```Bash
+    %sh
+    wget -O /dbfs/device_stream/devices2.json https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/devices2.json
+    ```
+
+1. Führen Sie den folgenden SQL-Abfragecode erneut aus, um zu überprüfen, ob die neuen Daten dem Datenstrom hinzugefügt und in den Delta-Ordner geschrieben wurden:
+
+    ```sql
+   %sql
+   SELECT * FROM IotDeviceData;
+    ```
+
+1. Führen Sie folgenden Code aus, um den Datenstrom zu stoppen:
+
+    ```python
+   deltastream.stop()
+    ```
+
+## Bereinigung
+
+Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
+
+Wenn Sie die Erkundung von Azure Databricks abgeschlossen haben, löschen Sie die erstellten Ressourcen, um unnötige Azure-Kosten zu vermeiden und Kapazität in Ihrem Abonnement freizugeben.
