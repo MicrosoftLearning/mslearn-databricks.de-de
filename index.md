@@ -13,5 +13,5 @@ Diese Übungen sind dafür konzipiert, die folgenden Schulungsinhalte auf Micros
 
 Um diese Übungen abzuschließen, benötigen Sie ein Azure-Abonnement, in dem Sie über Administratorzugriff verfügen.
 
-{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions/Exercises'" %} {% for activity in exercises  %}
+{% assign exercises = site.pages | where_exp:"page", "page.url contains '/Instructions'" %} {% for activity in exercises  %}
 - [{{ activity.lab.title }}]({{ site.github.url }}{{ activity.url }}) | {% endfor %}
