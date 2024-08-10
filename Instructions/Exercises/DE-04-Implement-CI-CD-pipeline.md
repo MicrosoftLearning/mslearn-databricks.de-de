@@ -1,9 +1,9 @@
 ---
 lab:
-  title: Implementieren von CI/CD-Pipelines mit Azure Databricks und Azure DevOps oder Azure Databricks und GitHub
+  title: Implementieren von CI/CD-Workflows mit Azure Databricks
 ---
 
-# Implementieren von CI/CD-Pipelines mit Azure Databricks und Azure DevOps oder Azure Databricks und GitHub
+# Implementieren von CI/CD-Workflows mit Azure Databricks
 
 Das Implementieren von Continuous Integration (CI)- und Continuous Deployment (CD)-Pipelines mit Azure Databricks und Azure DevOps oder Azure Databricks und GitHub umfasst das Einrichten einer Reihe automatisierter Schritte, um sicherzustellen, dass Codeänderungen integriert, getestet und effizient bereitgestellt werden. Der Prozess umfasst in der Regel das Herstellen einer Verbindung mit einem Git-Repository, das Ausführen von Aufträgen mit Azure Pipelines zum Erstellen von Code und zum Komponententest für Code sowie die Bereitstellung der Buildartefakte für die Verwendung in Databricks-Notizbüchern. Dieser Workflow ermöglicht einen stabilen Entwicklungszyklus, der Continuous Integration und Bereitstellung ermöglicht und modernen DevOps-Methoden entspricht.
 
@@ -143,17 +143,22 @@ steps:
   displayName: 'Install Databricks CLI'
 
 - script: |
-    databricks fs cp dbfs:/FileStore/sample_sales.csv .
-  displayName: 'Download Sample Data from DBFS'
+    databricks configure --token <<EOF
+    <your-databricks-host>
+    <your-databricks-token>
+    EOF
+  displayName: 'Configure Databricks CLI'
 
 - script: |
-    python -m unittest discover -s tests
-  displayName: 'Run Unit Tests'
+    databricks fs cp dbfs:/FileStore/sample_sales.csv . --overwrite
+  displayName: 'Download Sample Data from DBFS'
 ```
 
-4. Klicken Sie auf **Speichern und ausführen**.
+4. Ersetzen Sie `<your-databricks-host>` und `<your-databricks-token>` durch Ihre tatsächliche Databricks-Host-URL und -Token. Dadurch wird die Databricks-Befehlszeilenschnittstelle konfiguriert, bevor Sie versuchen, sie zu verwenden.
 
-Diese YAML-Datei richtet eine CI-Pipeline ein, die durch Änderungen an der `main` Verzweigung Ihres Repositorys ausgelöst wird. Die Pipeline richtet eine Python-Umgebung ein, installiert die Databricks CLI, lädt die Beispieldaten aus Ihrem Databricks-Arbeitsbereich herunter und führt Python-Komponententests aus. Dies ist ein gängiges Setup für CI-Workflows.
+5. Klicken Sie auf **Speichern und ausführen**.
+
+Diese YAML-Datei richtet eine CI-Pipeline ein, die durch Änderungen an der `main` Verzweigung Ihres Repositorys ausgelöst wird. Die Pipeline richtet eine Python-Umgebung ein, installiert die Databricks-CLI und lädt die Beispieldaten aus Ihrem Databricks-Arbeitsbereich herunter. Dies ist ein gängiges Setup für CI-Workflows.
 
 ## Konfigurieren einer CD-Pipeline
 
@@ -179,6 +184,13 @@ stages:
     - script: |
         pip install databricks-cli
       displayName: 'Install Databricks CLI'
+
+    - script: |
+        databricks configure --token <<EOF
+        <your-databricks-host>
+        <your-databricks-token>
+        EOF
+      displayName: 'Configure Databricks CLI'
 
     - script: |
         databricks workspace import_dir /path/to/notebooks /Workspace/Notebooks
