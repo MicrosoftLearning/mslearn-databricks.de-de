@@ -66,54 +66,41 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
     ```
 
 4. Verwenden Sie die Schaltfläche **&#9658; Ausführen (1000)**, um den SQL-Code auszuführen.
-5. Wenn der Code erfolgreich ausgeführt wurde, verwenden Sie im Bereich **Schemabrowser** die Schaltfläche „Aktualisieren“ am unteren Rand des Bereichs, um die Liste zu aktualisieren. Erweitern Sie dann **hive_metastore** und **retail_db**, und stellen Sie fest, dass die Datenbank zwar erstellt wurde, aber keine Tabellen enthält.
+5. Wenn der Code erfolgreich ausgeführt wurde, verwenden Sie im Bereich **Schemabrowser** die Schaltfläche „Aktualisieren“ am oberen Rand des Bereichs, um die Liste zu aktualisieren. Erweitern Sie dann **hive_metastore** und **retail_db**, und stellen Sie fest, dass die Datenbank zwar erstellt wurde, aber keine Tabellen enthält.
 
 Sie können die Datenbank **default** für Ihre Tabellen verwenden, aber beim Erstellen eines analytischen Datenspeichers empfiehlt es sich, für spezifische Daten benutzerdefinierte Datenbanken zu erstellen.
 
 ## Erstellen einer Tabelle
 
 1. Laden Sie die Datei [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) auf Ihren lokalen Computer herunter, und speichern Sie sie als **products.csv**.
-1. Wählen Sie im Azure Databricks-Arbeitsbereichsportal in der Seitenleiste **(+) Neu** aus, und wählen Sie dann **Dateiupload** aus, und laden Sie die Datei **products.csv** hoch, die Sie auf Ihren Computer heruntergeladen haben.
-1. Wählen Sie auf der Seite **Daten hochladen** das Schema **retail_db** aus, und legen Sie den Tabellennamen auf **products** fest. Wählen Sie dann unten links auf der Seite die Option **Tabelle erstellen** aus.
+1. Wählen Sie im Azure Databricks-Arbeitsbereichsportal in der Randleiste **(+) Neu** und dann ** Daten** aus.
+1. Wählen Sie auf der Seite **Daten hinzufügen** die Option **Tabelle erstellen oder ändern** aus und laden Sie die Datei **products.csv** hoch, die Sie auf Ihren Computer heruntergeladen haben.
+1. Wählen Sie auf der Seite **Tabelle aus Dateiupload erstellen oder ändern** das Schema **retail_db** aus und legen Sie den Tabellennamen auf **Produkte** fest. Wählen Sie dann unten rechts auf der Seite die Option **Tabelle erstellen** aus.
 1. Wenn die Tabelle erstellt wurde, überprüfen Sie die Details.
 
 Die Möglichkeit zum Erstellen einer Tabelle durch Importieren von Daten aus einer Datei erleichtert das Auffüllen einer Datenbank. Sie können Auch Spark SQL verwenden, um Tabellen mithilfe von Code zu erstellen. Die Tabellen selbst sind Metadatendefinitionen im Hive-Metastore, und die darin enthaltenen Daten werden im Delta-Format im Databricks File System(DBFS)-Speicher gespeichert.
 
-## Erstellen einer Abfrage
+## Erstellen eines Dashboards
 
-1. Klicken Sie in der Seitenleiste auf **(+) Neu**, und wählen Sie dann **Abfrage** aus.
-2. Erweitern Sie im Bereich **Schemabrowser** die Einträge **hive_metastore** und **retail_db**, und überprüfen Sie, ob die Tabelle **products** aufgeführt sind.
-3. Geben Sie im Bereich **Neue Abfrage** den folgenden SQL-Code ein:
+1. Klicken Sie in der Seitenleiste auf **(+) Neu**, und wählen Sie dann **Dashboard** aus.
+2. Wählen Sie den Namen des neuen Dashboards aus, und ändern Sie ihn in **Retail-Dashboard**.
+3. Wählen Sie auf der Registerkarte **Daten** die Option **Aus SQL erstellen** aus, und verwenden Sie die folgende Abfrage:
 
     ```sql
    SELECT ProductID, ProductName, Category
    FROM retail_db.products; 
     ```
 
-4. Verwenden Sie die Schaltfläche **&#9658; Ausführen (1000)**, um den SQL-Code auszuführen.
-5. Überprüfen Sie nach Abschluss der Abfrage die Ergebnistabelle.
-6. Verwenden Sie die Schaltfläche **Speichern** oben rechts im Abfrage-Editor, um die Abfrage als **Produkte und Kategorien** zu speichern.
+4. Wählen Sie **Ausführen** aus und benennen Sie das Dataset „Unbenannt“ in **Produkte und Kategorien** um.
+5. Wählen Sie die Registerkarte **Canvas** und dann **Visualisierung hinzufügen** aus.
+6. Legen Sie im Visualisierungs-Editor die folgenden Eigenschaften fest:
+    
+    - **Dataset**: Produkte und Kategorien
+    - **Visualisierung**: Balken
+    - **X-Achse**: COUNT(ProductID)
+    - **Y-Achse**: Kategorie
 
-Durch das Speichern einer Abfrage können dieselben Daten zu einem späteren Zeitpunkt wieder abgerufen werden.
-
-## Erstellen eines Dashboards
-
-1. Klicken Sie in der Seitenleiste auf **(+) Neu**, und wählen Sie dann **Dashboard** aus.
-2. Geben Sie im Dialogfeld **Neues Dashboard** den Namen **Retail Dashboard** ein, und wählen Sie **Speichern**aus.
-3. Wählen Sie im Dashboard **Retail Dashboard** in der Dropdownliste **Hinzufügen** die Option **Visualisierung** aus.
-4. Wählen Sie im Dialogfeld **Visualisierungs-Widget hinzufügen** die Abfrage **Produkte und Kategorien** aus. Wählen Sie dann **Neue Visualisierung erstellen** aus, legen Sie den Titel auf **Produkte pro Kategorie** fest, und wählen Sie **Visualisierung erstellen** aus.
-5. Legen Sie im Visualisierungs-Editor die folgenden Eigenschaften fest:
-    - **Visualisierungstyp**: Balken
-    - **Horizontales Diagramm**: Ausgewählt
-    - **Y-Spalte**: Kategorie
-    - **X-Spalten**: Produkt-ID : Anzahl
-    - **Gruppieren nach**: *Leer lassen*
-    - **Stapeln**: Deaktiviert
-    - **Normalisieren von Werten in Prozent**: <u>Nicht</u>ausgewählt
-    - **Fehlende und NULL-Werte**: Im Diagramm nicht anzeigen
-
-6. Speichern Sie die Visualisierung, und zeigen Sie sie im Dashboard an.
-7. Wählen Sie **Bearbeitung abgeschlossen** aus, um das Dashboard so anzuzeigen, wie es Benutzerinnen und Benutzer sehen werden.
+7. Wählen Sie **Veröffentlichen** aus, um das Dashboard so anzuzeigen, wie es Benutzende sehen werden.
 
 Dashboards sind eine hervorragende Möglichkeit, Datentabellen und Visualisierungen mit Geschäftsbenutzerinnen und -benutzern zu teilen. Sie regelmäßiges Aktualisieren und Versenden von Dashboards an Abonnenten per E-Mail planen.
 
