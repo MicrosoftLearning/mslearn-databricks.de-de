@@ -1,179 +1,250 @@
-# Übung 02 – Abruf der erweiterten Generation mithilfe von Azure Databricks
+---
+lab:
+  title: Erweiterte Generierung von Datenabfragen mit Azure Databricks
+---
 
-## Ziel
-Diese Übung führt Sie durch die Einrichtung eines RAG-Workflows (Retrieval Augmented Generation) auf Azure Databricks. Der Prozess umfasst die Aufnahme von Daten, die Erstellung von Vektoreinbettungen, die Speicherung dieser Einbettungen in einer Vektordatenbank und deren Verwendung zur Erweiterung der Eingabe für ein generatives Modell.
+# Erweiterte Generierung von Datenabfragen mit Azure Databricks
 
-## Anforderungen
-Ein aktives Azure-Abonnement. Wenn Sie keine Version besitzen, können Sie sich für eine [kostenlose Testversion](https://azure.microsoft.com/en-us/free/) registrieren.
+Retrieval Augmented Generation (RAG) ist ein innovativer Ansatz in der KI, der große Sprachmodelle durch die Integration externer Wissensquellen verbessert. Azure Databricks bietet eine robuste Plattform für die Entwicklung von RAG-Anwendungen, mit der unstrukturierte Daten in ein Format umgewandelt werden können, das für den Abruf und die Generierung von Antworten geeignet ist. Dieser Prozess umfasst eine Reihe von Schritten, darunter das Verstehen der Benutzeranfrage, das Abrufen relevanter Daten und die Generierung einer Antwort mithilfe eines Sprachmodells. Das von Azure Databricks bereitgestellte Framework unterstützt die schnelle Iteration und Bereitstellung von RAG-Anwendungen und gewährleistet hochwertige, domänenspezifische Antworten, die aktuelle Informationen und proprietäres Wissen enthalten können.
 
-## Geschätzte Dauer: 40 Minuten
+Dieses Lab dauert ungefähr **40** Minuten.
 
-## Schritt 1: Bereitstellen von Azure Databricks
-- Melden Sie sich beim Azure-Portal an.
-    1. Gehen Sie zum Azure-Portal und melden Sie sich mit Ihren Anmeldedaten an.
-- Erstellen Sie einen Databricks-Dienst:
-    1. Navigieren Sie zu „Ressource erstellen“ > „Analyse“ > „Azure Databricks“.
-    2. Geben Sie die erforderlichen Details wie Arbeitsbereichsname, Abonnement, Ressourcengruppe (neu erstellen oder vorhandene auswählen) und Standort ein.
-    3. Wählen Sie das Preisniveau aus (wählen Sie „Standard“ für diese Übung).
-    4. Klicken Sie auf „Überprüfen + erstellen“ und dann auf „Erstellen“, sobald die Validierung erfolgreich war.
+## Vor der Installation
 
-## Schritt 2: Starten Sie Workspace und erstellen Sie einen Cluster
-- Starten des Databricks-Workspace:
-    1. Sobald die Bereitstellung abgeschlossen ist, gehen Sie zur Ressource und klicken Sie auf "Workspace starten".
-- Erstellen eines Spark-Clusters:
-    1. Klicken Sie im Workspace von Databricks in der Seitenleiste auf "Berechnen" und dann auf "Berechnung erstellen".
-    2. Geben Sie den Namen des Clusters an und wählen Sie eine Laufzeitversion von Spark aus.
-    3. Wählen Sie den Arbeitertyp als „Standard“ und den Knotentyp basierend auf den verfügbaren Optionen (wählen Sie kleinere Knoten für Kosteneffizienz).
-    4. Klicken Sie auf "Berechnung erstellen".
+Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
-## Schritt 3: Datenvorbereitung
-- Erfassung von Daten
-    1. Laden Sie einen Beispieldatensatz von Wikipedia-Artikeln von [hier](https://dumps.wikimedia.org/enwiki/latest/) herunter.
-    2. Laden Sie den Datensatz in Azure Data Lake Storage oder direkt in das Azure Databricks-Dateisystem hoch.
+## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
-- Laden von Daten in Azure Databricks
-```python
-from pyspark.sql import SparkSession
+> **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-spark = SparkSession.builder.appName("RAG-DataPrep").getOrCreate()
-raw_data_path = "/mnt/data/wiki_sample.json"  # Adjust the path as necessary
+Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
-raw_df = spark.read.json(raw_data_path)
-raw_df.show(5)
-```
+1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
 
-- Datenbereinigung und -vorverarbeitung
-    1. Bereinigen und Vorverarbeitung der Daten zum Extrahieren relevanter Textfelder.
+2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
 
-    ```python
+    ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
+
+    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+
+3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
+
+4. Geben Sie im PowerShell-Bereich die folgenden Befehle ein, um dieses Repository zu klonen:
+
+     ```powershell
+    rm -r mslearn-databricks -f
+    git clone https://github.com/MicrosoftLearning/mslearn-databricks
+     ```
+
+5. Nachdem das Repository geklont wurde, geben Sie den folgenden Befehl ein, um das Skript **setup.ps1** auszuführen, das einen Azure Databricks-Arbeitsbereich in einer verfügbaren Region bereitstellt:
+
+     ```powershell
+    ./mslearn-databricks/setup.ps1
+     ```
+
+6. Wenn Sie dazu aufgefordert werden, wählen Sie aus, welches Abonnement Sie verwenden möchten (dies geschieht nur, wenn Sie Zugriff auf mehrere Azure-Abonnements haben).
+
+7. Warten Sie, bis das Skript abgeschlossen ist. Dies dauert in der Regel etwa 5 Minuten, in einigen Fällen kann es jedoch länger dauern. Während Sie warten, lesen Sie den Artikel [Einführung in Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) in der Azure Databricks-Dokumentation.
+
+## Erstellen eines Clusters
+
+Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
+
+> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+
+1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält).
+1. Wählen Sie die Ressource Ihres Azure Databricks-Diensts aus (sie trägt den Namen **databricks-*xxxxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben).
+1. Verwenden Sie auf der Seite **Übersicht** für Ihren Arbeitsbereich die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich auf einer neuen Browserregisterkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
+
+    > **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
+
+1. Wählen Sie zunächst in der Randleiste auf der linken Seite die Aufgabe **(+) Neu** und dann **Cluster** aus.
+1. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
+    - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
+    - **Richtlinie:** Unrestricted
+    - **Clustermodus**: Einzelknoten
+    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
+    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Betaversion der Runtime aus (**Nicht** eine Standard-Runtimeversion), die folgende Kriterien erfüllt:*
+        - *Verwendet **keine** GPU*
+        - *Umfasst Scala > **2.11***
+        - *Umfasst Spark > **3.4***
+    - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
+    - **Knotentyp**: Standard_DS3_v2
+    - **Beenden nach** *20* **Minuten Inaktivität**
+
+1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
+
+> **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
+
+## Installieren der erforderlichen Bibliotheken
+
+1. Wählen Sie auf der Seite Ihres Clusters die Registerkarte „**Bibliotheken“** aus.
+
+2. Wählen Sie „**Neu installieren**“ aus.
+
+3. Wählen Sie **PyPI** als Bibliotheksquelle aus und geben Sie `transformers==4.44.0` in das Feld **Paket** ein.
+
+4. Wählen Sie **Installieren** aus.
+
+5. Wiederholen Sie die obigen Schritte, um `databricks-vectorsearch==0.40` ebenfalls zu installieren.
+   
+## Erstellen eines Notebook und Erfassen von Daten
+
+1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen. Wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, wenn er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+
+2. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
+
+     ```python
+    %sh
+    rm -r /dbfs/RAG_lab
+    mkdir /dbfs/RAG_lab
+    wget -O /dbfs/RAG_lab/enwiki-latest-pages-articles.xml https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/enwiki-latest-pages-articles.xml
+     ```
+
+3. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+
+4. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen Dataframe aus den Rohdaten zu erstellen:
+
+     ```python
+    from pyspark.sql import SparkSession
+
+    # Create a Spark session
+    spark = SparkSession.builder \
+        .appName("RAG-DataPrep") \
+        .getOrCreate()
+
+    # Read the XML file
+    raw_df = spark.read.format("xml") \
+        .option("rowTag", "page") \
+        .load("/RAG_lab/enwiki-latest-pages-articles.xml")
+
+    # Show the DataFrame
+    raw_df.show(5)
+
+    # Print the schema of the DataFrame
+    raw_df.printSchema()
+     ```
+
+5. Führen Sie in einer neuen Zelle den folgenden Code aus und ersetzen Sie `<catalog_name>` durch den Namen Ihres Unity-Katalogs (den Katalog mit dem Namen Ihres Arbeitsbereichs plus einem eindeutigen Suffix), um die Daten zu bereinigen und vorzuverarbeiten und die relevanten Textfelder zu extrahieren:
+
+     ```python
     from pyspark.sql.functions import col
 
-    clean_df = raw_df.select(col("title"), col("text"))
+    clean_df = raw_df.select(col("title"), col("revision.text._VALUE").alias("text"))
     clean_df = clean_df.na.drop()
+    clean_df.write.format("delta").mode("overwrite").saveAsTable("<catalog_name>.default.wiki_pages")
     clean_df.show(5)
-    ```
-## Schritt 4: Generieren von Einbettungen
-- Installieren der erforderlichen Bibliotheken
-    1. Vergewissern Sie sich, dass die Bibliotheken für Transformatoren und Satztransformatoren installiert sind.
+     ```
 
-    ```python
-    %pip install transformers sentence-transformers
-    ```
-- Generieren von Einbettungen
-    1. Verwenden Sie ein vorab trainiertes Modell, um Einbettungen für den Text zu generieren.
+Wenn Sie den **Katalog (CTRL + Alt + C)**-Explorer öffnen und dessen Fenster aktualisieren, sehen Sie die Delta-Tabelle, die in Ihrem Standard-Unity-Katalog erstellt wurde.
 
-    ```python
-    from sentence_transformers import SentenceTransformer
+## Einbettungen generieren und Vektorsuche implementieren
 
-    model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+Databricks' Mosaic AI Vector Search ist eine in die Azure Databricks Platform integrierte Vektordatenbanklösung. Es optimiert die Speicherung und den Abruf von Einbettungen unter Verwendung des Hierarchical Navigable Small World (HNSW)-Algorithmus. Sie ermöglicht eine effiziente Suche nach den nächsten Nachbarn, und ihre hybride Suchfunktion für Schlüsselwortähnlichkeit stellt durch die Kombination von vektorbasierten und schlagwortbasierten Suchtechniken relevantere Ergebnisse bereit.
 
-    def embed_text(text):
-        return model.encode(text).tolist()
+1. Führen Sie in einer neuen Zelle die folgende SQL-Abfrage aus, um die Funktion „Änderungsdatenfeed“ in der Quelltabelle zu aktivieren, bevor Sie einen Delta-Sync-Index erstellen.
 
-    # Apply the embedding function to the dataset
-    from pyspark.sql.functions import udf
-    from pyspark.sql.types import ArrayType, FloatType
+     ```python
+    %sql
+    ALTER TABLE <catalog_name>.default.wiki_pages SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
+     ```
 
-    embed_udf = udf(embed_text, ArrayType(FloatType()))
-    embedded_df = clean_df.withColumn("embeddings", embed_udf(col("text")))
-    embedded_df.show(5)
-    ```
+2. Führen Sie den folgenden Code in einer neuen Zelle aus, um den Index für die Vektorsuche zu erstellen.
 
-## Schritt 5: Speichern von Einbettungen
-- Speichern von Einbettungen in Delta-Tabellen
-    1. Speichern Sie die eingebetteten Daten in einer Delta-Tabelle, um sie effizient abrufen zu können.
+     ```python
+    from databricks.vector_search.client import VectorSearchClient
 
-    ```python
-    embedded_df.write.format("delta").mode("overwrite").save("/mnt/delta/wiki_embeddings")
-    ```
+    client = VectorSearchClient()
 
-    2. Erstellen Sie eine Delta-Tabelle
-
-    ```python
-    CREATE TABLE IF NOT EXISTS wiki_embeddings
-     LOCATION '/mnt/delta/wiki_embeddings'
-    ```
-## Schritt 6: Implementieren der Vektorsuche
-- Konfigurieren der Vektorsuche
-    1. Verwenden Sie die Vektorsuchfunktionen von Databricks oder integrieren Sie sie in eine Vektordatenbank wie Milvus oder Pinecone.
-
-    ```python
-    from databricks.feature_store import FeatureStoreClient
-
-    fs = FeatureStoreClient()
-
-    fs.create_table(
-        name="wiki_embeddings_vector_store",
-        primary_keys=["title"],
-        df=embedded_df,
-        description="Vector embeddings for Wikipedia articles."
+    client.create_endpoint(
+        name="vector_search_endpoint",
+        endpoint_type="STANDARD"
     )
-    ```
-- Führen Sie eine Vektorsuche durch
-    1. Implementieren Sie eine Funktion zur Suche nach relevanten Dokumenten auf der Grundlage eines Abfragevektors.
 
-    ```python
-    def search_vectors(query_text, top_k=5):
-        query_embedding = model.encode([query_text]).tolist()
-        query_df = spark.createDataFrame([(query_text, query_embedding)], ["query_text", "query_embedding"])
-        
-        results = fs.search_table(
-            name="wiki_embeddings_vector_store",
-            vector_column="embeddings",
-            query=query_df,
-            top_k=top_k
-        )
-        return results
+    index = client.create_delta_sync_index(
+      endpoint_name="vector_search_endpoint",
+      source_table_name="<catalog_name>.default.wiki_pages",
+      index_name="<catalog_name>.default.wiki_index",
+      pipeline_type="TRIGGERED",
+      primary_key="title",
+      embedding_source_column="text",
+      embedding_model_endpoint_name="databricks-gte-large-en"
+     )
+     ```
+     
+Wenn Sie den **Katalog (CTRL + Alt + C)**-Explorer öffnen und den Bereich aktualisieren, sehen Sie den Index, der in Ihrem Standard-Unity-Katalog erstellt wurde.
 
-    query = "Machine learning applications"
-    search_results = search_vectors(query)
-    search_results.show()
-    ```
+> **Hinweis:** Stellen Sie vor dem Ausführen der nächsten Codezelle sicher, dass der Index erfolgreich erstellt wurde. Klicken Sie dazu mit der rechten Maustaste auf den Index im Katalogbereich und wählen Sie **Im Katalog-Explorer öffnen**. Warten Sie, bis der Indexstatus **Online** lautet.
 
-## Schritt 7: Generative Augmentation
-- Erweitern von Eingabeaufforderungen mit abgerufenen Daten:
-    1. Kombinieren Sie die abgerufenen Daten mit der Abfrage des Benutzenden, um eine umfangreiche Eingabeaufforderung für die LLM zu erstellen.
+3. Führen Sie in einer neuen Zelle den folgenden Code aus, um auf der Grundlage eines Abfragevektors nach relevanten Dokumenten zu suchen.
 
-    ```python
+     ```python
+    results_dict=index.similarity_search(
+        query_text="Anthropology fields",
+        columns=["title", "text"],
+        num_results=1
+    )
+
+    display(results_dict)
+     ```
+
+Überprüfen Sie, ob die Ausgabe die entsprechende Wiki-Seite für die Eingabeaufforderung findet.
+
+## Erweitern von Eingabeaufforderungen mit abgerufenen Daten:
+
+Jetzt können wir die Kapazitäten von großen Sprachmodellen verbessern, indem wir ihnen zusätzlichen Kontext aus externen Datenquellen bereitstellen. Auf diese Weise können die Modelle genauere und kontextbezogenere Antworten geben.
+
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die abgerufenen Daten mit der Abfrage des Benutzers zu kombinieren und eine umfangreiche Eingabeaufforderung für den LLM zu erstellen.
+
+     ```python
+    # Convert the dictionary to a DataFrame
+    results = spark.createDataFrame([results_dict['result']['data_array'][0]])
+
+    from transformers import pipeline
+
+    # Load the summarization model
+    summarizer = pipeline("summarization")
+
+    # Extract the string values from the DataFrame column
+    text_data = results.select("_2").rdd.flatMap(lambda x: x).collect()
+
+    # Pass the extracted text data to the summarizer function
+    summary = summarizer(text_data, max_length=512, min_length=100, do_sample=True)
+
     def augment_prompt(query_text):
-        search_results = search_vectors(query_text)
-        context = " ".join(search_results.select("text").rdd.flatMap(lambda x: x).collect())
+        context = " ".join([item['summary_text'] for item in summary])
         return f"Query: {query_text}\nContext: {context}"
 
-    prompt = augment_prompt("Explain the significance of the Turing test")
+    prompt = augment_prompt("Explain the significance of Anthropology")
     print(prompt)
-    ```
+     ```
 
-- Antworten mit LLM generieren:
-    2. Verwenden Sie einen LLM wie GPT-3 oder ähnliche Modelle von Hugging Face, um Antworten zu generieren.
+3. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen LLM zur Generierung von Antworten zu verwenden.
 
-    ```python
+     ```python
     from transformers import GPT2LMHeadModel, GPT2Tokenizer
 
     tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
     model = GPT2LMHeadModel.from_pretrained("gpt2")
 
     inputs = tokenizer(prompt, return_tensors="pt")
-    outputs = model.generate(inputs["input_ids"], max_length=500, num_return_sequences=1)
+    outputs = model.generate(
+        inputs["input_ids"], 
+        max_length=300, 
+        num_return_sequences=1, 
+        repetition_penalty=2.0, 
+        top_k=50, 
+        top_p=0.95, 
+        temperature=0.7,
+        do_sample=True
+    )
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
     print(response)
-    ```
+     ```
 
-## Schritt 8: Auswertung und Optimierung
-- Bewertung der Qualität der generierten Antworten:
-    1. Beurteilen Sie die Relevanz, Kohärenz und Genauigkeit der generierten Antworten.
-    2. Sammeln Sie Benutzerfeedback, und durchlaufen Sie den Prozess der Prompt-Augmentation.
+## Bereinigung
 
-- Optimieren Sie den RAG-Workflow:
-    1. Experimentieren Sie mit unterschiedlichen Einbettungsmodellen, Chunk-Größen und Abrufparametern, um die Leistung zu optimieren.
-    2. Überwachen Sie die Leistung des Systems, und nehmen Sie Anpassungen vor, um Die Genauigkeit und Effizienz zu verbessern.
+Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
 
-## Schritt 9: Bereinigen der Ressourcen
-- Beenden des Clusters
-    1. Gehen Sie zurück zur Seite Berechnen, wählen Sie Ihren Cluster aus und klicken Sie auf Beenden, um den Cluster zu stoppen.
-
-- Optional: Löschen Sie den Databricks-Dienst:
-    1. Um weitere Gebühren zu vermeiden, sollten Sie den Databricks-Arbeitsbereich löschen, wenn dieses Lab nicht Teil eines größeren Projekts oder Lernpfads ist.
-
-Wenn Sie diese Schritte befolgen, haben Sie ein RAG-System (Retrieval Augmented Generation) mit Azure Databricks implementiert. Dieses Labor zeigt, wie Daten vorverarbeitet, Einbettungen generiert, effizient gespeichert, Vektorsuchen durchgeführt und generative Modelle verwendet werden, um angereicherte Antworten zu erstellen. Der Ansatz kann an verschiedene Bereiche und Datensätze angepasst werden, um die Fähigkeiten von KI-gesteuerten Anwendungen zu verbessern.
+Wenn Sie die Erkundung von Azure Databricks abgeschlossen haben, löschen Sie die erstellten Ressourcen, um unnötige Azure-Kosten zu vermeiden und Kapazität in Ihrem Abonnement freizugeben.
