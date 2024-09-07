@@ -1,174 +1,341 @@
-# Übung 04 - Feinabstimmung großer Sprachmodelle mit Azure Databricks und Azure OpenAI
+---
+lab:
+  title: Feinabstimmung großer Sprachmodelle mit Azure Databricks und Azure OpenAI
+---
 
-## Ziel
-Diese Übung führt Sie durch den Prozess der Feinabstimmung eines großen Sprachmodells (LLM) mit Azure Databricks und Azure OpenAI. Sie erfahren, wie Sie die Umgebung einrichten, Daten vorverarbeitern und ein LLM für benutzerdefinierte Daten optimieren, um bestimmte NLP-Aufgaben zu erfüllen.
+# Feinabstimmung großer Sprachmodelle mit Azure Databricks und Azure OpenAI
 
-## Anforderungen
-Ein aktives Azure-Abonnement. Wenn Sie keine Version besitzen, können Sie sich für eine [kostenlose Testversion](https://azure.microsoft.com/en-us/free/) registrieren.
+Mit Azure Databricks können Benutzende nun die Leistungsfähigkeit von LLMs für spezielle Aufgaben nutzen, indem sie diese mit ihren eigenen Daten abstimmen und so die domänenspezifische Leistung verbessern. Um ein Sprachmodell mit Azure Databricks zu optimieren, können Sie die Mosaik AI Model-Training-Schnittstelle verwenden, die den Prozess der vollständigen Modelloptimierung vereinfacht. Mit dieser Funktion können Sie ein Modell mit Ihren benutzerdefinierten Daten feinabstimmen, wobei die Prüfpunkte in MLflow gespeichert werden, sodass Sie die vollständige Kontrolle über das feinabgestimmte Modell behalten.
 
-## Schritt 1: Bereitstellen von Azure Databricks
-- Melden Sie sich beim Azure-Portal an.
-    1. Gehen Sie zum Azure-Portal und melden Sie sich mit Ihren Anmeldedaten an.
-- Erstellen Sie einen Databricks-Dienst:
-    1. Navigieren Sie zu „Ressource erstellen“ > „Analyse“ > „Azure Databricks“.
-    2. Geben Sie die erforderlichen Details wie Arbeitsbereichsname, Abonnement, Ressourcengruppe (neu erstellen oder vorhandene auswählen) und Standort ein.
-    3. Wählen Sie das Preisniveau aus (wählen Sie „Standard“ für diese Übung).
-    4. Klicken Sie auf „Überprüfen + erstellen“ und dann auf „Erstellen“, sobald die Validierung erfolgreich war.
+Dieses Lab dauert ungefähr **60** Minuten.
 
-## Schritt 2: Starten Sie Workspace und erstellen Sie einen Cluster
-- Starten des Databricks-Workspace:
-    1. Sobald die Bereitstellung abgeschlossen ist, gehen Sie zur Ressource und klicken Sie auf "Workspace starten".
-- Erstellen eines Spark-Clusters:
-    1. Klicken Sie im Workspace von Databricks in der Seitenleiste auf "Berechnen" und dann auf "Berechnung erstellen".
-    2. Geben Sie den Namen des Clusters an und wählen Sie eine Laufzeitversion von Spark aus.
-    3. Wählen Sie den Arbeitertyp als „Standard“ und den Knotentyp basierend auf den verfügbaren Optionen (wählen Sie kleinere Knoten für Kosteneffizienz).
-    4. Klicken Sie auf "Berechnung erstellen".
+## Vor der Installation
 
-## Schritt 3: Erforderliche Bibliotheken installieren
-- Klicken Sie auf der Registerkarte „Bibliotheken“ Ihres Clusters auf „Neu installieren“.
-- Installieren Sie die folgenden Python-Pakete:
-    1. transformers
-    2. datasets
-    3. azure-ai-openai
-- Optional können Sie auch alle anderen notwendigen Pakete wie Torch installieren.
+Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
-### Neues Notizbuch erstellen
-- Gehen Sie zum Abschnitt „Arbeitsbereich“ und klicken Sie auf „Erstellen“ > „Notizbuch“.
-- Benennen Sie Ihr Notebook (z. B. Fine-Tuning-GPT4) und wählen Sie Python als Standardsprache.
-- Hängen Sie das Notizbuch an Ihren Cluster.
+## Bereitstellen einer Azure OpenAI-Ressource
 
-## Schritt 4 - Datensatz vorbereiten
+Wenn Sie noch keine Azure OpenAI-Ressource haben, stellen Sie eine in Ihrem Azure-Abonnement bereit.
 
-- Laden Sie den Datensatz
-    1. Sie können jeden Textdatensatz verwenden, der für Ihre Feinabstimmung geeignet ist. Verwenden wir beispielsweise das IMDB-Dataset für die Stimmungsanalyse.
-    2. Führen Sie in Ihrem Notebook den folgenden Code aus, um den Datensatz zu laden
+1. Melden Sie sich beim **Azure-Portal** unter `https://portal.azure.com` an.
+2. Erstellen Sie eine **Azure OpenAI-Ressource** mit den folgenden Einstellungen:
+    - **Abonnement:** *Wählen Sie ein Azure-Abonnement aus, das für den Zugriff auf den Azure OpenAI-Dienst freigegeben wurde.*
+    - **Ressourcengruppe**: *Wählen Sie eine Ressourcengruppe aus, oder erstellen Sie eine*.
+    - **Region:** *Treffen Sie eine **zufällige** Auswahl aus einer der folgenden Regionen*\*
+        - USA (Ost) 2
+        - USA Nord Mitte
+        - Schweden, Mitte
+        - Schweiz, Westen
+    - **Name:** *Wählen Sie einen Namen Ihrer Wahl aus.*
+    - **Tarif**: Standard S0.
 
-    ```python
-    from datasets import load_dataset
+> \* Azure OpenAI-Ressourcen werden durch regionale Kontingente eingeschränkt. Die aufgeführten Regionen enthalten das Standardkontingent für die in dieser Übung verwendeten Modelltypen. Durch die zufällige Auswahl einer Region wird das Risiko reduziert, dass eine einzelne Region ihr Kontingentlimit in Szenarien erreicht, in denen Sie ein Abonnement für andere Benutzer freigeben. Wenn später in der Übung ein Kontingentlimit erreicht wird, besteht eventuell die Möglichkeit, eine andere Ressource in einer anderen Region zu erstellen.
 
-    dataset = load_dataset("imdb")
-    ```
+3. Warten Sie, bis die Bereitstellung abgeschlossen ist. Wechseln Sie dann zur bereitgestellten Azure OpenAI-Ressource im Azure-Portal.
 
-- Vorverarbeiten der Daten
-    1. Tokenisieren Sie die Textdaten mit dem Tokenizer aus der Transformers-Bibliothek.
-    2. Fügen Sie in Ihrem Notizbuch den folgenden Code ein:
+4. Wählen Sie im linken Fensterbereich unter **Ressourcenverwaltung** die Option **Tasten und Endpunkt**.
 
-    ```python
-    from transformers import GPT2Tokenizer
+5. Kopieren Sie den Endpunkt und einen der verfügbaren Schlüssel, da Sie ihn später in dieser Übung verwenden werden.
 
-    tokenizer = GPT2Tokenizer.from_pretrained("gpt2")
+6. Starten Sie Cloud Shell und führen Sie `az account get-access-token` aus, um ein temporäres Autorisierungstoken für API-Tests zu erhalten. Notieren Sie dies zusammen mit dem zuvor kopierten Endpunkt und Schlüssel.
 
-    def tokenize_function(examples):
-        return tokenizer(examples["text"], padding="max_length", truncation=True)
+## Bereitstellen des erforderlichen Modells
 
-    tokenized_datasets = dataset.map(tokenize_function, batched=True)
-    ```
+Azure bietet ein webbasiertes Portal namens **Azure AI Studio**, das Sie zur Bereitstellung, Verwaltung und Untersuchung von Modellen verwenden können. Sie beginnen Ihre Erkundung von Azure OpenAI, indem Sie Azure AI Studio verwenden, um ein Modell bereitzustellen.
 
-- Vorbereiten von Daten für die Feinabstimmung
-    1. Teilen Sie die Daten in Trainings- und Validierungssätze auf.
-    2. Fügen Sie in Ihrem Notizbuch Folgendes hinzu:
+> **Hinweis**: Während Sie Azure AI Studio verwenden, werden möglicherweise Meldungsfelder mit Vorschlägen für auszuführende Aufgaben angezeigt. Sie können diese schließen und die Schritte in dieser Übung ausführen.
 
-    ```python
-    small_train_dataset = tokenized_datasets["train"].shuffle(seed=42).select(range(1000))
-    small_eval_dataset = tokenized_datasets["test"].shuffle(seed=42).select(range(500))
-    ```
+1. Scrollen Sie im Azure-Portal auf der Seite **Übersicht** für Ihre Azure OpenAI-Ressource nach unten zum Abschnitt **Erste Schritte** und klicken Sie auf die Schaltfläche, um zu **Azure AI Studio** zu gelangen.
+   
+1. Wählen Sie in Azure AI Studio im linken Bereich die Seite "**Deployments**" aus und sehen Sie sich Ihre vorhandenen Modellbereitstellungen an. Falls noch nicht vorhanden, erstellen Sie eine neue Bereitstellung des **gpt-35-turbo**-Modells mit den folgenden Einstellungen:
+    - **Bereitstellungsname**: *gpt-35-turbo-0613*
+    - **Modell**: gpt-35-turbo
+    - **Modellversion**: 0613
+    - **Bereitstellungstyp**: Standard
+    - **Ratenlimit für Token pro Minute**: 5K\*
+    - **Inhaltsfilter**: Standard
+    - **Dynamische Quote aktivieren**: Deaktiviert
+    
+> \* Ein Ratenlimit von 5.000 Token pro Minute ist mehr als ausreichend, um diese Aufgabe zu erfüllen und gleichzeitig Kapazität für andere Personen zu schaffen, die das gleiche Abonnement nutzen.
 
-## Schritt 5 – Feinabstimmung des GPT-4-Modells
+## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
-- Einrichten der OpenAI-API
-    1. Sie benötigen Ihren Azure OpenAI API-Schlüssel und Endpunkt.
-    2. Richten Sie in Ihrem Notizbuch die API-Anmeldeinformationen ein:
+> **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-    ```python
-    import openai
+1. Melden Sie sich beim **Azure-Portal** unter `https://portal.azure.com` an.
+2. Erstellen Sie eine **Azure Databricks**-Ressource mit den folgenden Einstellungen:
+    - **Abonnement**: *Wählen Sie das gleiche Azure-Abonnement aus, das Sie zum Erstellen Ihrer Azure OpenAI-Ressource verwendet haben*
+    - **Ressourcengruppe**: *Die gleiche Ressourcengruppe, in der Sie Ihre Azure OpenAI-Ressource erstellt haben*
+    - **Region**: *Die gleiche Region, in der Sie Ihre Azure OpenAI-Ressource erstellt haben*
+    - **Name:** *Wählen Sie einen Namen Ihrer Wahl aus.*
+    - **Preisstufe**: *Premium* oder *Testversion*
 
-    openai.api_type = "azure"
-    openai.api_key = "YOUR_AZURE_OPENAI_API_KEY"
-    openai.api_base = "YOUR_AZURE_OPENAI_ENDPOINT"
-    openai.api_version = "2023-05-15"
-    ```
-- Feinabstimmen des Modells
-    1. Die Feinabstimmung von GPT-4 erfolgt durch die Anpassung von Hyperparametern und die Fortsetzung des Trainingsprozesses auf Ihrem spezifischen Datensatz.
-    2. Die Feinabstimmung kann komplexer sein und erfordert unter Umständen eine Stapelung von Daten, die Anpassung von Schulungsschleifen usw.
-    3. Verwenden Sie die folgende Vorlage:
+3. Wählen Sie **Überprüfen + Erstellen** und warten Sie, bis die Bereitstellung abgeschlossen ist. Wechseln Sie dann zur Ressource, und starten Sie den Arbeitsbereich.
 
-    ```python
-    from transformers import GPT2LMHeadModel, Trainer, TrainingArguments
+## Erstellen eines Clusters
 
-    model = GPT2LMHeadModel.from_pretrained("gpt2")
+Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-    training_args = TrainingArguments(
-        output_dir="./results",
-        evaluation_strategy="epoch",
-        learning_rate=2e-5,
-        per_device_train_batch_size=2,
-        per_device_eval_batch_size=2,
-        num_train_epochs=3,
-        weight_decay=0.01,
+> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+
+1. Navigieren Sie im Azure-Portal zu der Ressourcengruppe, in der der Azure Databricks-Arbeitsbereich erstellt wurde.
+2. Wählen Sie Ihre Azure Databricks Service-Ressource aus.
+3. Verwenden Sie auf der Seite **Übersicht** für Ihren Arbeitsbereich die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich auf einer neuen Browserregisterkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
+
+> **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
+
+4. Wählen Sie zunächst in der Randleiste auf der linken Seite die Aufgabe **(+) Neu** und dann **Cluster** aus.
+5. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
+    - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
+    - **Richtlinie:** Unrestricted
+    - **Clustermodus**: Einzelknoten
+    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
+    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Betaversion der Runtime aus (**Nicht** eine Standard-Runtimeversion), die folgende Kriterien erfüllt:*
+        - *Verwendet **keine** GPU*
+        - *Umfasst Scala > **2.11***
+        - *Umfasst Spark > **3.4***
+    - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
+    - **Knotentyp**: Standard_DS3_v2
+    - **Beenden nach** *20* **Minuten Inaktivität**
+
+6. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
+
+> **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen.
+
+## Installieren der erforderlichen Bibliotheken
+
+1. Wählen Sie auf der Seite Ihres Clusters die Registerkarte „**Bibliotheken“** aus.
+
+2. Wählen Sie „**Neu installieren**“ aus.
+
+3. Wählen Sie **PyPI** als Bibliotheksquelle aus und installieren Sie die folgenden Python-Pakete:
+   - `numpy==2.1.0`
+   - `requests==2.32.3`
+   - `openai==1.42.0`
+   - `tiktoken==0.7.0`
+
+## Erstellen eines neuen Notebooks und Erfassen von Daten
+
+1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
+   
+1. Benennen Sie Ihr Notebook und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+
+2. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
+
+     ```python
+    %sh
+    rm -r /dbfs/fine_tuning
+    mkdir /dbfs/fine_tuning
+    wget -O /dbfs/fine_tuning/training_set.jsonl https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/training_set.jsonl
+    wget -O /dbfs/fine_tuning/validation_set.jsonl https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/validation_set.jsonl
+     ```
+
+3. Führen Sie in einer neuen Zelle den folgenden Code mit den Zugriffsinformationen aus, die Sie am Anfang dieser Übung kopiert haben, um beständige Umgebungsvariablen für die Authentifizierung bei Verwendung von Azure OpenAI-Ressourcen zuzuweisen:
+
+     ```python
+    import os
+
+    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+    os.environ["TEMP_AUTH_TOKEN"] = "your_access_token"
+     ```
+     
+## Validieren der Tokenanzahl
+
+Sowohl `training_set.jsonl` als auch `validation_set.jsonl` bestehen aus verschiedenen Konversationsbeispielen zwischen `user` und `assistant`, die als Datenpunkte für das Training und die Validierung des fein abgestimmten Modells dienen. Einzelne Beispiele müssen unter dem Eingabetokenlimit des `gpt-35-turbo`-Modells von 4.096 Token bleiben.
+
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die Tokenanzahl für jede Datei zu überprüfen:
+
+   ```python
+    import json
+    import tiktoken
+    import numpy as np
+    from collections import defaultdict
+
+    encoding = tiktoken.get_encoding("cl100k_base")
+
+    def num_tokens_from_messages(messages, tokens_per_message=3, tokens_per_name=1):
+        num_tokens = 0
+        for message in messages:
+            num_tokens += tokens_per_message
+            for key, value in message.items():
+                num_tokens += len(encoding.encode(value))
+                if key == "name":
+                    num_tokens += tokens_per_name
+        num_tokens += 3
+        return num_tokens
+
+    def num_assistant_tokens_from_messages(messages):
+        num_tokens = 0
+        for message in messages:
+            if message["role"] == "assistant":
+                num_tokens += len(encoding.encode(message["content"]))
+        return num_tokens
+
+    def print_distribution(values, name):
+        print(f"\n##### Distribution of {name}:")
+        print(f"min / max: {min(values)}, {max(values)}")
+        print(f"mean / median: {np.mean(values)}, {np.median(values)}")
+
+    files = ['/dbfs/fine_tuning/training_set.jsonl', '/dbfs/fine_tuning/validation_set.jsonl']
+
+    for file in files:
+        print(f"File: {file}")
+        with open(file, 'r', encoding='utf-8') as f:
+            dataset = [json.loads(line) for line in f]
+
+        total_tokens = []
+        assistant_tokens = []
+
+        for ex in dataset:
+            messages = ex.get("messages", {})
+            total_tokens.append(num_tokens_from_messages(messages))
+            assistant_tokens.append(num_assistant_tokens_from_messages(messages))
+
+        print_distribution(total_tokens, "total tokens")
+        print_distribution(assistant_tokens, "assistant tokens")
+        print('*' * 75)
+   ```
+
+## Hochladen von Feinabstimmungsdateien in Azure OpenAI
+
+Bevor Sie mit der Feinabstimmung des Modells beginnen, müssen Sie einen OpenAI-Client initialisieren und die Feinabstimmungsdateien zu seiner Umgebung hinzufügen und Datei-IDs generieren, die zum Initialisieren des Auftrags verwendet werden.
+
+1. Führen Sie in einer neuen Zelle den folgenden Code aus:
+
+     ```python
+    import os
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+      azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+      api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+      api_version = "2024-05-01-preview"  # This API version or later is required to access seed/events/checkpoint features
     )
 
-    trainer = Trainer(
-        model=model,
-        args=training_args,
-        train_dataset=small_train_dataset,
-        eval_dataset=small_eval_dataset,
+    training_file_name = '/dbfs/fine_tuning/training_set.jsonl'
+    validation_file_name = '/dbfs/fine_tuning/validation_set.jsonl'
+
+    training_response = client.files.create(
+        file = open(training_file_name, "rb"), purpose="fine-tune"
+    )
+    training_file_id = training_response.id
+
+    validation_response = client.files.create(
+        file = open(validation_file_name, "rb"), purpose="fine-tune"
+    )
+    validation_file_id = validation_response.id
+
+    print("Training file ID:", training_file_id)
+    print("Validation file ID:", validation_file_id)
+     ```
+
+## Übermitteln des Feinabstimmungsauftrags
+
+Nachdem die Feinabstimmungsdateien erfolgreich hochgeladen wurden, können Sie Ihren Trainingsauftrag für die Optimierung übermitteln. Es ist nicht ungewöhnlich, dass das Training mehr als eine Stunde dauert. Nach Abschluss der Schulung können Sie die Ergebnisse in Azure KI Studio anzeigen, indem Sie im linken Bereich die Option **Feinabstimmung** auswählen.
+
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um den Trainingsauftrag zur Feinabstimmung auszuführen:
+
+     ```python
+    response = client.fine_tuning.jobs.create(
+        training_file = training_file_id,
+        validation_file = validation_file_id,
+        model = "gpt-35-turbo-0613",
+        seed = 105 # seed parameter controls reproducibility of the fine-tuning job. If no seed is specified one will be generated automatically.
     )
 
-    trainer.train()
-    ```
-    4. Dieser Code stellt ein grundlegendes Framework für die Ausbildung bereit. Die Parameter und Datensätze müssten für bestimmte Fälle angepasst werden.
+    job_id = response.id
+     ```
 
-- Überwachen des Schulungsvorgangs
-    1. Databricks ermöglicht die Überwachung des Schulungsvorgangs über die Notebook-Oberfläche und integrierte Tools wie MLflow zur Nachverfolgung.
+Der Parameter `seed` steuert die Reproduzierbarkeit des Feinabstimmungsauftrags. Die Übergabe der gleichen Seed- und Auftragsparameter sollte zu den gleichen Ergebnissen führen, kann aber in seltenen Fällen abweichen. Wenn kein Startwert angegeben ist, wird automatisch einer generiert.
 
-## Schritt 6: Feinabstimmungsmodell bewerten
+2. In einer neuen Zelle können Sie den folgenden Code ausführen, um den Status des Feinabstimmungsauftrags zu überwachen:
 
-- Vorhersagen generieren
-    1. Nach der Feinabstimmung erstellen Sie Vorhersagen für den Bewertungsdatensatz.
-    2. Fügen Sie in Ihrem Notizbuch Folgendes hinzu:
+     ```python
+    print("Job ID:", response.id)
+    print("Status:", response.status)
+     ```
 
-    ```python
-    predictions = trainer.predict(small_eval_dataset)
-    print(predictions)
-    ```
+3. Sobald sich der Auftragsstatus in `succeeded` ändert, führen Sie den folgenden Code aus, um die Endergebnisse zu erhalten:
 
-- Bewerten Sie die Modellleistung
-    1. Verwenden Sie Metriken wie Genauigkeit, Präzision, Rückruf und F1-Score, um das Modell zu bewerten.
-    2. Beispiel:
+     ```python
+    response = client.fine_tuning.jobs.retrieve(job_id)
 
-    ```python
-    from sklearn.metrics import accuracy_score
+    print(response.model_dump_json(indent=2))
+    fine_tuned_model = response.fine_tuned_model
+     ```
+   
+## Bereitstellen des optimierten Modells
 
-    preds = predictions.predictions.argmax(-1)
-    labels = predictions.label_ids
-    accuracy = accuracy_score(labels, preds)
-    print(f"Accuracy: {accuracy}")
-    ```
+Da Sie nun über ein fein abgestimmtes Modell verfügen, können Sie es als benutzerdefiniertes Modell bereitstellen und wie jedes andere bereitgestellte Modell entweder im **Chat**-Playground von Azure KI Studio oder über die Chatvervollständigungs-API verwenden.
 
-- Speichern Sie das Feinabstimmungsmodell
-    1. Speichern Sie das feinabgestimmte Modell in Ihrer Azure Databricks-Umgebung oder im Azure-Speicher zur späteren Verwendung.
-    2. Beispiel:
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um Ihr fein abgestimmtes Modell bereitzustellen:
+   
+     ```python
+    import json
+    import requests
 
-    ```python
-    model.save_pretrained("/dbfs/mnt/fine-tuned-gpt4/")
-    ```
+    token = os.getenv("TEMP_AUTH_TOKEN")
+    subscription = "<YOUR_SUBSCRIPTION_ID>"
+    resource_group = "<YOUR_RESOURCE_GROUP_NAME>"
+    resource_name = "<YOUR_AZURE_OPENAI_RESOURCE_NAME>"
+    model_deployment_name = "gpt-35-turbo-ft"
 
-## Schritt 7: Feinabstimmungsmodell bereitstellen
-- Packen eines Modells für die Bereitstellung (Vorschau)
-    1. Konvertieren Sie das Modell in ein Format, das mit Azure OpenAI oder einem anderen Bereitstellungsdienst kompatibel ist.
+    deploy_params = {'api-version': "2023-05-01"}
+    deploy_headers = {'Authorization': 'Bearer {}'.format(token), 'Content-Type': 'application/json'}
 
-- Bereitstellen des Modells
-    1. Verwenden Sie Azure OpenAI für die Bereitstellung, indem Sie das Modell über Azure Machine Learning oder direkt beim OpenAI-Endpunkt registrieren.
+    deploy_data = {
+        "sku": {"name": "standard", "capacity": 1},
+        "properties": {
+            "model": {
+                "format": "OpenAI",
+                "name": "<YOUR_FINE_TUNED_MODEL>",
+                "version": "1"
+            }
+        }
+    }
+    deploy_data = json.dumps(deploy_data)
 
-- Testen Sie das bereitgestellte Modell
-    1. Führen Sie Tests durch, um sicherzustellen, dass sich das bereitgestellte Modell erwartungsgemäß verhält und reibungslos in die Anwendungen integriert werden kann.
+    request_url = f'https://management.azure.com/subscriptions/{subscription}/resourceGroups/{resource_group}/providers/Microsoft.CognitiveServices/accounts/{resource_name}/deployments/{model_deployment_name}'
 
-## Schritt 8: Ressourcen bereinigen
-- Beenden des Clusters
-    1. Gehen Sie zurück zur Seite Berechnen, wählen Sie Ihren Cluster aus und klicken Sie auf Beenden, um den Cluster zu stoppen.
+    print('Creating a new deployment...')
 
-- Optional: Löschen Sie den Databricks-Dienst:
-    1. Um weitere Gebühren zu vermeiden, sollten Sie den Databricks-Arbeitsbereich löschen, wenn dieses Lab nicht Teil eines größeren Projekts oder Lernpfads ist.
+    r = requests.put(request_url, params=deploy_params, headers=deploy_headers, data=deploy_data)
 
-Diese Übung stellte eine umfassende Anleitung zur Feinabstimmung großer Sprachmodelle wie GPT-4 mit Azure Databricks und Azure OpenAI bereit. Wenn Sie diese Schritte befolgen, können Sie die Modelle für bestimmte Aufgaben fein abstimmen, ihre Leistung bewerten und sie für reale Anwendungen einsetzen.
+    print(r)
+    print(r.reason)
+    print(r.json())
+     ```
 
+2. Führen Sie in einer neuen Zelle den folgenden Code aus, um Ihr angepasstes Modell in einem Chatvervollständigungs-Aufruf zu verwenden:
+   
+     ```python
+    import os
+    from openai import AzureOpenAI
+
+    client = AzureOpenAI(
+      azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+      api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+      api_version = "2024-02-01"
+    )
+
+    response = client.chat.completions.create(
+        model = "gpt-35-turbo-ft", # model = "Custom deployment name you chose for your fine-tuning model"
+        messages = [
+            {"role": "system", "content": "You are a helpful assistant."},
+            {"role": "user", "content": "Does Azure OpenAI support customer managed keys?"},
+            {"role": "assistant", "content": "Yes, customer managed keys are supported by Azure OpenAI."},
+            {"role": "user", "content": "Do other Azure AI services support this too?"}
+        ]
+    )
+
+    print(response.choices[0].message.content)
+     ```
+ 
+## Bereinigung
+
+Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
+
+Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
+
+Wenn Sie die Erkundung von Azure Databricks abgeschlossen haben, löschen Sie die erstellten Ressourcen, um unnötige Azure-Kosten zu vermeiden und Kapazität in Ihrem Abonnement freizugeben.
