@@ -21,7 +21,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -65,7 +65,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
     - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
     - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
@@ -76,7 +76,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
 
-2. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **Eine Pipeline mit Delta Live Tables erstellen** und wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, sofern er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+2. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in `Create a pipeline with Delta Live tables` und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 3. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
@@ -91,7 +91,9 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 ## Erstellen einer Delta Live Tables-Pipeline mit SQL
 
-Erstellen Sie ein neues SQL-Notebook und beginnen Sie mit der Definition der Delta Live Tables mithilfe von SQL-Skripts. Stellen Sie sicher, dass Sie die DLT SQL-Benutzeroberfläche aktiviert haben.
+Erstellen Sie ein neues Notebook und beginnen Sie mit der Definition der Delta Live Tables mithilfe von SQL-Skripts.
+
+1. Wählen Sie neben dem Namen des Notebooks die Option **Python** aus und ändern Sie die Standardsprache in **SQL**.
 
 1. Platzieren Sie den folgenden Code in der ersten Zelle, ohne ihn auszuführen. Alle Zellen werden ausgeführt, nachdem die Pipeline erstellt wurde. Dieser Code definiert eine Delta Live Table, die mit den zuvor heruntergeladenen Rohdaten ausgefüllt wird:
 
@@ -117,7 +119,7 @@ Erstellen Sie ein neues SQL-Notebook und beginnen Sie mit der Definition der Del
     COMMENT "Formatted and filtered data for analysis."
     AS
     SELECT
-        DATE_FORMAT(Last_Update, 'MM/dd/yyyy') as Report_Date,
+        TO_DATE(Last_Update, 'MM/dd/yyyy') as Report_Date,
         Country_Region,
         Confirmed,
         Deaths,
@@ -143,7 +145,7 @@ Erstellen Sie ein neues SQL-Notebook und beginnen Sie mit der Definition der Del
 4. Wählen Sie **Delta Live Tables** in der linken Randleiste und dann **Pipeline erstellen** aus.
 
 5. Erstellen Sie auf der Seite **Pipeline erstellen** eine neue Pipeline mit den folgenden Einstellungen:
-    - **Pipelinename**: Benennen Sie die Pipeline.
+    - **Pipeline-Name**: Geben Sie der Pipeline einen Namen
     - **Produktedition**: Erweitert
     - **Pipelinemodus**: Ausgelöst
     - **Quellcode**: Wählen Sie Ihr SQL-Notebook aus.
@@ -154,15 +156,15 @@ Erstellen Sie ein neues SQL-Notebook und beginnen Sie mit der Definition der Del
  
 7. Nachdem die Pipeline erfolgreich ausgeführt wurde, wechseln Sie zum ersten Notebook zurück, und stellen Sie sicher, dass alle drei neuen Tabellen am angegebenen Speicherort mit dem folgenden Code erstellt wurden:
 
-     ```sql
-    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab"))
+     ```python
+    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/tables"))
      ```
 
 ## Anzeigen von Ergebnissen als Visualisierung
 
 Nach dem Erstellen der Tabellen ist es möglich, sie in Datenframes zu laden und die Daten zu visualisieren.
 
-1. Fügen Sie im ersten Notebook eine neue Codezelle hinzu und führen Sie den folgenden Code aus, um den `aggregated_covid_data` in einen Dataframe zu laden:
+1. Fügen Sie im ersten Notizbuch eine neue Codezelle hinzu, und führen Sie den folgenden Code aus, um den `aggregated_covid_data` Code in einen Datenframe zu laden:
 
     ```python
    df = spark.read.format("delta").load('/pipelines/delta_lab/tables/aggregated_covid_data')
@@ -174,7 +176,7 @@ Nach dem Erstellen der Tabellen ist es möglich, sie in Datenframes zu laden und
     - **X-Spalte**: Report_Date
     - **Y-Spalte**: *Fügen Sie eine neue Spalte hinzu und wählen Sie***Total_Confirmed** aus. *Wenden Sie die Aggregation* **Summe** *aus*.
 
-1. Speichern Sie die Visualisierung und zeigen Sie das resultierende Diagramm im Notebook an.
+1. Speichern Sie die Visualisierung, und zeigen Sie das resultierende Diagramm im Notebook an.
 
 ## Bereinigung
 

@@ -21,7 +21,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -65,7 +65,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
     - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
     - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
@@ -76,7 +76,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
 
-2. Wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, wenn er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+2. Wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, wenn er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 3. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
@@ -97,7 +97,7 @@ Sie implementieren Ihren Datenverarbeitungs- und Analyseworkflow mithilfe von Au
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
 
-2. Ändern Sie den Standard-Notebooknamen (**Unbetiteltes Notebook *[Datum]***) in **ETL-Aufgabe** und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, wenn er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+2. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in `ETL task` und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 3. Geben Sie in die erste Zelle des Notebooks den folgenden Code ein, der ein Schema für die Daten definiert und die Datensätze in einen Dataframe lädt:
 
@@ -127,7 +127,7 @@ Sie implementieren Ihren Datenverarbeitungs- und Analyseworkflow mithilfe von Au
     df = df.withColumn('Tax', col('UnitPrice') * 0.08)
     df = df.withColumn('Tax', col('Tax').cast("float"))
      ```
-> Hinweis: Nach dem Aktualisieren der Werte in der Spalte **Steuer** wird ihr Datentyp wieder auf `float` gesetzt. Dies ist darauf zurückzuführen, dass sich der Datentyp nach der Berechnung in `double` ändert. Da `double` einen höheren Speicherbedarf hat als `float`, ist es für die Leistung besser, die Spalte zurück nach `float` zu schreiben.
+    > **Hinweis**: Nach der Aktualisierung der Werte in der Spalte **Steuer** wird der Datentyp wieder auf `float` gesetzt. Dies ist darauf zurückzuführen, dass sich der Datentyp nach der Berechnung in `double` ändert. Da `double` einen höheren Speicherbedarf hat als `float`, ist es für die Leistung besser, die Spalte zurück nach `float` zu schreiben.
 
 5. Führen Sie in einer neuen Codezelle den folgenden Code aus, um die Auftragsdaten zu aggregieren und zu gruppieren:
 
@@ -156,7 +156,7 @@ Azure Databricks verwaltet die Aufgabenorchestrierung, Clusterverwaltung, Überw
 
 2. Wählen Sie im Bereich Workflows die Option **Auftrag erstellen**.
 
-3. Ändern Sie den Standardauftragsnamen (**Neuer Auftrag *[Datum]***) in **ETL-Auftrag**.
+3. Ändern Sie den Standardauftragsnamen (**Neuer Auftrag *[Datum]***) in `ETL job`.
 
 4. Geben Sie im Feld **Aufgabenname** einen Namen für die Aufgabe ein.
 

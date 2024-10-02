@@ -11,7 +11,7 @@ Azure Databricks erleichtert die explorative Datenanalyse (EDA), sodass Benutzen
 
 Es ist in eine Vielzahl von Tools und Techniken für EDA integriert, einschließlich statistischer Methoden und Visualisierungen, um Datenmerkmale zusammenzufassen und zugrunde liegende Probleme zu identifizieren.
 
-Diese Übung dauert ca. **45** Minuten.
+Diese Übung dauert ca. **30** Minuten.
 
 ## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
@@ -26,7 +26,7 @@ Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschl
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -68,7 +68,7 @@ In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-U
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
     - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
     - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
@@ -79,7 +79,7 @@ In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-U
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
    
-1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **Explore data with Spark**, und wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, sofern er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in `Explore data with Spark` und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 ## Einlesen von Daten
 
