@@ -21,7 +21,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -65,7 +65,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
     - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
     - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
@@ -78,7 +78,7 @@ Jetzt erstellen wir ein Spark Notebook und importieren die Daten, mit denen wir 
 
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
 
-1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **Explore Delta Lake**, und wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, sofern er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in `Explore Delta Lake` und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
@@ -111,7 +111,7 @@ Die Daten wurden in einen DataFrame geladen. Wir werden sie nun in einer Delta-T
 
     Die Daten für eine Delta Lake-Tabelle werden im Parquet-Format gespeichert. Außerdem wird eine Protokolldatei erstellt, um die an den Daten vorgenommenen Änderungen zu verfolgen.
 
-1. Fügen Sie eine neue Codezelle hinzu, und verwenden Sie diese, um die folgenden Shellbefehle auszuführen und den Inhalt des Ordners anzuzeigen, in dem die Delta-Daten gespeichert wurden.
+1. Fügen Sie eine neue Codezelle hinzu und führen Sie darin den folgenden Shell-Befehl aus, um den Inhalt des Ordners anzuzeigen, in dem die Deltadaten gespeichert wurden.
 
     ```
     %sh
@@ -169,7 +169,7 @@ Bisher haben Sie mit Delta-Tabellen gearbeitet, indem Sie Daten aus dem Ordner m
 
 ### Erstellen einer externen Tabelle
 
-1. Verwenden Sie den folgenden Code, um eine neue Datenbank namens **AdventureWorks** zu erstellen. Der Code erstellt anschließend eine externe Tabelle namens **ProductsExternal** in dieser Datenbank basierend auf dem Pfad zu den zuvor definierten Delta-Dateien:
+1. Verwenden Sie den folgenden Code, um eine neue Datenbank mit dem Namen **AdventureWorks** zu erstellen, und erstellen Sie dann eine externe Tabelle mit dem Namen **ProductsExternal** in dieser Datenbank, basierend auf dem Pfad zu den zuvor definierten Delta-Dateien:
 
     ```python
    spark.sql("CREATE DATABASE AdventureWorks")
@@ -189,7 +189,7 @@ Bisher haben Sie mit Delta-Tabellen gearbeitet, indem Sie Daten aus dem Ordner m
 
 ### Erstellen einer verwalteten Tabelle
 
-1. Führen Sie den folgenden Code aus, um eine verwaltete Tabelle mit dem Namen **ProductsManaged** basierend auf dem ursprünglich aus der Datei **products.csv** geladenen DataFrame (bevor Sie den Preis des Produkts 771 aktualisiert haben) zu erstellen.
+1. Führen Sie den folgenden Code aus, um eine verwaltete Tabelle mit dem Namen **ProductsManaged** auf der Grundlage des Datenframes zu erstellen (und anschließend zu beschreiben), den Sie ursprünglich aus der Datei **products.csv** geladen haben (bevor Sie den Preis des Produkts 771 aktualisiert haben).
 
     ```python
    df.write.format("delta").saveAsTable("AdventureWorks.ProductsManaged")

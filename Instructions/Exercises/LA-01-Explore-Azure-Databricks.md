@@ -22,7 +22,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -62,7 +62,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
     - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
     - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
@@ -74,8 +74,8 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 Wie in vielen Spark-Umgebungen unterstützt Databricks die Verwendung von Notebooks zum Kombinieren von Notizen und interaktiven Codezellen, mit denen Sie Daten untersuchen können.
 
 1. Laden Sie die Datei [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) aus `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv` auf Ihren lokalen Computer herunter, und speichern Sie sie unter dem Namen **products.csv**.
-1. Wählen Sie in der Randleiste im Linkmenü **(+) Neu** die Option **Dateiupload** aus.
-1. Laden Sie die **products.csv**-Datei hoch, die Sie auf Ihren Computer heruntergeladen haben.
+1. Wählen Sie in der Seitenleiste im Menü **(+) Neu** den Link **Daten** aus.
+1. Wählen Sie **Tabelle erstellen oder bearbeiten** aus und laden Sie die Datei **products.csv** hoch, die Sie auf Ihren Computer heruntergeladen haben.
 1. Stellen Sie auf der Seite **Erstellen oder Ändern einer Tabelle aus dem Dateiupload** sicher, dass Ihr Cluster oben rechts auf der Seite ausgewählt ist. Wählen Sie dann den **hive_metastore**-Katalog und sein Standardschema aus, um eine neue Tabelle mit dem Namen **Produkte** zu erstellen.
 1. Wenn die **Produkte**-Seite erstellt wurde, wählen Sie auf der Seite **Katalog-Explorer** im Schaltflächenmenü **Erstellen** **Notebook** aus, um ein Notebook zu erstellen.
 1. Stellen Sie im Notebook sicher, dass das Notebook mit Ihrem Cluster verbunden ist, und überprüfen Sie dann den Code, der automatisch der ersten Zelle hinzugefügt wurde. Er sollte etwa wie folgt aussehen:
@@ -98,7 +98,7 @@ Wie in vielen Spark-Umgebungen unterstützt Databricks die Verwendung von Notebo
 
 ## Analysieren von Daten mit einem Datenframe
 
-Während die meisten Datenanalysen mit SQL-Code vertraut sind, wie im vorherigen Beispiel verwendet, können einige Datenanalysten und Data Scientists native Spark-Objekte wie einen *Dataframe* in Programmiersprachen wie *PySpark* (eine Spark-optimierte Version von Python) verwenden, um effizient mit Daten zu arbeiten.
+Während die meisten Datenanalysten und -analystinnen mit SQL-Code wie im vorherigen Beispiel vertraut sind, können einige dieser Fachleute und wissenschaftliche Fachkräfte für Daten native Spark-Objekte wie einen *Datenrahmen* in Programmiersprachen wie *PySpark* (eine für Spark optimierte Version von Python) verwenden, um effizient mit Daten zu arbeiten.
 
 1. Verwenden Sie im Notizbuch unter der Diagrammausgabe aus der zuvor ausgeführten Codezelle das **+**-Symbol, um eine neue Zelle hinzuzufügen.
 1. Geben Sie den folgenden Code in die neue Zelle ein, und führen Sie ihn aus:

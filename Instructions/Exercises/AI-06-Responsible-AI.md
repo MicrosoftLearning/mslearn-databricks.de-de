@@ -93,7 +93,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
         - *Umfasst Scala > **2.11***
         - *Umfasst Spark > **3.4***
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 6. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
