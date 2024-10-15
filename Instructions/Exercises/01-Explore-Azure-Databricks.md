@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Einführung in Azure Databricks
+  title: Veraltet – Azure Databricks erkunden
 ---
 
 # Einführung in Azure Databricks

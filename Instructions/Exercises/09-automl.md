@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Trainieren eines Modells mit automatisiertem maschinellem Lernen
+  title: Veraltet – Trainieren eines Modells mit automatisiertem maschinellem Lernen
 ---
 
 # Trainieren eines Modells mit automatisiertem maschinellem Lernen

@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Trainieren eines Deep Learning-Modells
+  title: Veraltet – Trainieren eines Deep Learning-Modells
 ---
 
 # Trainieren eines Deep Learning-Modells

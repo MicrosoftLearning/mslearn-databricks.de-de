@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Verwenden von Apache Spark in Azure Databricks
+  title: Veraltet – Verwenden von Apache Spark in Azure Databricks
 ---
 
 # Verwenden von Apache Spark in Azure Databricks

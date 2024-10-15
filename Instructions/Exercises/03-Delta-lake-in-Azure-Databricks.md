@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Verwenden von Delta Lake in Azure Databricks
+  title: Veraltet – Verwenden von Delta Lake in Azure Databricks
 ---
 
 # Verwenden von Delta Lake in Azure Databricks
@@ -82,7 +82,7 @@ Jetzt erstellen wir ein Spark Notebook und importieren die Daten, mit denen wir 
     wget -O /dbfs/delta_lab/products.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv
     ```
 
-1. Verwenden Sie Menüoption **&#9656; Zelle ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
 1. Verwenden Sie unter der vorhandenen Codezelle das Symbol **+**, um eine neue Codezelle hinzuzufügen. Geben Sie dann in die neue Zelle den folgenden Code ein, und führen Sie ihn aus, um die Daten aus der Datei zu laden und die ersten 10 Zeilen anzuzeigen.
 
     ```python
