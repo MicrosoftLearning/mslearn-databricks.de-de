@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Optimieren von Hyperparametern für maschinelles Lernen in Azure Databricks
+  title: Veraltet – Optimieren von Hyperparametern für maschinelles Lernen in Azure Databricks
 ---
 
 # Optimieren von Hyperparametern für maschinelles Lernen in Azure Databricks

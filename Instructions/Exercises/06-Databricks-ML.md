@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Erste Schritte mit Machine Learning in Azure Databricks
+  title: Veraltet –Erste Schritte mit Machine Learning in Azure Databricks
 ---
 
 # Erste Schritte mit Machine Learning in Azure Databricks

@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Veraltet – Automatisieren eines Azure Databricks-Notebooks mit Azure Data Factory
+  title: Automatisieren eines Azure Databricks-Notebooks mit Azure Data Factory
 ---
 
 # Automatisieren eines Azure Databricks-Notebooks mit Azure Data Factory
@@ -20,7 +20,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud Shell erstellt haben, die eine *Bash*-Umgebung verwendet, ändern Sie diese mithilfe des Dropdownmenüs oben links im Cloud Shell-Bereich zu ***PowerShell***.
+    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
 
 3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
@@ -65,7 +65,7 @@ Sie können Notizbücher in Ihrem Azure Databricks-Arbeitsbereich erstellen, um 
 
 1. Zeigen Sie das Azure Databricks-Arbeitsbereichsportal an, und beachten Sie, dass die Randleiste auf der linken Seite Symbole für die verschiedenen Aufgaben enthält, die Sie ausführen können.
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
-1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **Process Data**.
+1. Ändern Sie den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in `Process Data`.
 1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein (aber führen Sie ihn nicht aus), um eine Variable für den Ordner einzurichten, in dem dieses Notebook Daten speichert.
 
     ```python
@@ -113,9 +113,9 @@ Um Azure Databricks aus einer Azure Data Factory-Pipeline zu verwenden, müssen 
 4. Wählen Sie auf der Seite **Verwalten** auf der Registerkarte **Verknüpfte Dienste** die Option **+ Neu** aus, um einen neuen verknüpften Dienst hinzuzufügen.
 5. Wählen Sie im Bereich **Neuer verknüpfter Dienst** die Registerkarte **Compute** oben aus. Wählen Sie dann **Azure Databricks** aus.
 6. Fahren Sie fort, und erstellen Sie den verknüpften Dienst mit den folgenden Einstellungen:
-    - **Name**: AzureDatabricks
-    - **Beschreibung**: Azure Databricks-Arbeitsbereich
-    - **Verbindung über Integration Runtime herstellen**: AutoResolveInegrationRuntime
+    - **Name**: `AzureDatabricks`
+    - **Beschreibung:** `Azure Databricks workspace`
+    - **Verbindung über Integration Runtime herstellen**: AutoResolveIntegrationRuntime
     - **Kontoauswahlmethode**: Aus Azure-Abonnement
     - **Azure-Abonnement**: *Wählen Sie Ihr Abonnement aus.*
     - **Databricks-Arbeitsbereich**: *Wählen Sie Ihren Arbeitsbereich **databricksxxxxxxx** aus.*
@@ -137,11 +137,11 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
 
 1. Wählen Sie in Azure Data Factory Studio im Navigationsbereich die Option **Autor** aus.
 2. Verwenden Sie auf der Seite **Autor** im Bereich **Factory-Ressourcen** das Symbol **+**, um eine **Pipeline** hinzuzufügen.
-3. Ändern Sie im Bereich **Eigenschaften** für die neue Pipeline ihren Namen in **Daten mit Databricks verarbeiten**. Verwenden Sie dann die Schaltfläche **Eigenschaften** (die **&#128463;<sub>*</sub>** ähnelt) am rechten Ende der Symbolleiste verwenden, um den Bereich **Eigenschaften** auszublenden.
+3. Ändern Sie im Bereich **Eigenschaften** für die neue Pipeline den Namen in `Process Data with Databricks`. Verwenden Sie dann die Schaltfläche **Eigenschaften** (die **&#128463;<sub>*</sub>** ähnelt) am rechten Ende der Symbolleiste verwenden, um den Bereich **Eigenschaften** auszublenden.
 4. Erweitern Sie im Bereich **Aktivitäten** die Option **Databricks**, und ziehen Sie eine **Notebook**-Aktivität auf die Oberfläche des Pipeline-Designers, wie hier gezeigt:
 5. Wenn die neue **Notebook1**-Aktivität ausgewählt ist, legen Sie die folgenden Eigenschaften im unteren Bereich fest:
     - **Allgemein**:
-        - **Name**: Daten verarbeiten
+        - **Name**: `Process Data`
     - **Azure Databricks**:
         - **Mit Databricks verknüpfter Dienst**: *Wählen Sie den verknüpften Dienst **AzureDatabricks** aus, den Sie zuvor erstellt haben.*
     - **Einstellungen**:
@@ -162,7 +162,6 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
     ```json
     {
         "runPageUrl": "https://adb-..../run/...",
-        "runOutput": "dbfs:/product_data/products.csv",
         "effectiveIntegrationRuntime": "AutoResolveIntegrationRuntime (East US)",
         "executionDuration": 61,
         "durationInQueue": {
@@ -180,8 +179,6 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
         }
     }
     ```
-
-5. Notieren Sie sich den Wert **runOutput**, bei dem es sich um die Variable *path* handelt, in der das Notebook die Daten gespeichert hat.
 
 ## Bereinigung
 

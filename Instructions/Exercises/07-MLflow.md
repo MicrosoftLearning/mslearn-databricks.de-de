@@ -1,6 +1,6 @@
 ---
 lab:
-  title: Verwenden von MLflow in Azure Databricks
+  title: Veraltet – Verwenden von MLflow in Azure Databricks
 ---
 
 # Verwenden von MLflow in Azure Databricks
@@ -87,7 +87,7 @@ Das Szenario für diese Übung basiert auf Beobachtungen von Pinguinen in der An
 
 > **Quellenangaben:** Das in dieser Übung verwendete Pinguin-Dataset ist eine Teilmenge der Daten, die von [Dr. Kristen Gorman](https://www.uaf.edu/cfos/people/faculty/detail/kristen-gorman.php) und der [Palmer-Station (Antarktis-Forschungsstation)](https://pal.lternet.edu/), ein Mitglied des [Long Term Ecological Research Network](https://lternet.edu/) (Netzwerk für ökologische und ökosystemare Langzeitforschung), gesammelt und zur Verfügung gestellt werden.
 
-1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Pinguindaten von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
+1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shell*-Befehlen die Pinguindaten von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
     ```bash
     %sh
@@ -96,7 +96,7 @@ Das Szenario für diese Übung basiert auf Beobachtungen von Pinguinen in der An
     wget -O /dbfs/mlflow_lab/penguins.csv https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv
     ```
 
-1. Verwenden Sie Menüoption **&#9656; Zelle ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
 
 1. Bereiten Sie nun die Daten für das maschinelle Lernen vor. Verwenden Sie unter der vorhandenen Codezelle das Symbol **+**, um eine neue Codezelle hinzuzufügen. Geben Sie dann den folgenden Code in die neue Zelle ein, und führen Sie ihn aus, um Folgendes zu tun:
     - Entfernen aller unvollständigen Zeilen

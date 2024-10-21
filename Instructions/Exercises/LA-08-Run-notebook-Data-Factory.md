@@ -162,7 +162,6 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
     ```json
     {
         "runPageUrl": "https://adb-..../run/...",
-        "runOutput": "dbfs:/product_data/products.csv",
         "effectiveIntegrationRuntime": "AutoResolveIntegrationRuntime (East US)",
         "executionDuration": 61,
         "durationInQueue": {
@@ -180,8 +179,6 @@ Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in ein
         }
     }
     ```
-
-5. Notieren Sie sich den Wert **runOutput**, bei dem es sich um die Variable *path* handelt, in der das Notebook die Daten gespeichert hat.
 
 ## Bereinigung
 
