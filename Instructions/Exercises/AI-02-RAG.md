@@ -9,7 +9,7 @@ Retrieval Augmented Generation (RAG) ist ein innovativer Ansatz in der KI, der g
 
 Dieses Lab dauert ungefähr **40** Minuten.
 
-## Vor der Installation
+## Vorbereitung
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
