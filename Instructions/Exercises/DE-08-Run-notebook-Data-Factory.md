@@ -124,7 +124,7 @@ Um Azure Databricks aus einer Azure Data Factory-Pipeline zu verwenden, müssen 
     - **Authentifizierungstyp**: Zugriffstoken
     - **Zugriffstoken**: *Fügen Sie Ihr Zugriffstoken ein*
     - **Clusterversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12)
-    - **Clusterknotentyp**: Standard_DS3_v2
+    - **Clusterknotentyp**: Standard_D4ds_v5
     - **Python-Version**: 3
     - **Workeroptionen**: Behoben
     - **Worker**: 1
