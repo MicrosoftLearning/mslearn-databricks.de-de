@@ -9,7 +9,7 @@ Retrieval Augmented Generation (RAG) ist ein innovativer Ansatz in der KI, der g
 
 Dieses Lab dauert ungefähr **40** Minuten.
 
-## Vor der Installation
+## Vorbereitung
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -69,7 +69,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
         - *Umfasst Scala > **2.11***
         - *Umfasst Spark > **3.4***
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
-    - **Knotentyp**: Standard_DS3_v2
+    - **Knotentyp**: Standard_D4ds_v5
     - **Beenden nach** *20* **Minuten Inaktivität**
 
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
