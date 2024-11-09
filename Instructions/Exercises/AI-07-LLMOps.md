@@ -108,10 +108,10 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 3. Geben Sie Ihrem Notizbuch einen Namen und wählen Sie `Python` als Sprache aus.
 
-4. In der ersten Codezelle geben Sie den folgenden Code ein und führen ihn aus, um die erforderlichen Bibliotheken zu installieren:
+4. Geben Sie in der ersten Codezelle den folgenden Code ein und führen Sie ihn aus, um die OpenAI-Bibliothek zu installieren:
    
      ```python
-    %pip install azure-ai-openai flask
+    %pip install openai
      ```
 
 5. Nachdem die Installation abgeschlossen ist, starten Sie den Kernel in einer neuen Zelle neu:
@@ -122,80 +122,66 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 ## Protokollieren des LLM mithilfe von MLflow
 
+Mit den LLM-Tracking-Funktionen von MLflow können Sie Parameter, Metriken, Vorhersagen und Artifacts protokollieren. Zu den Parametern gehören Schlüsselwertpaare, die die Eingabekonfigurationen detailliert beschreiben, während Metriken quantitative Leistungsmessungen liefern. Die Vorhersagen umfassen sowohl die Eingabeaufforderungen als auch die Antworten des Modells, die als Artifacts gespeichert werden, um sie leicht abrufen zu können. Diese strukturierte Protokollierung hilft bei der Aufrechterhaltung eines detaillierten Datensatzes jeder Interaktion, wodurch eine bessere Analyse und Optimierung von LLMs erleichtert wird.
+
+1. Führen Sie in einer neuen Zelle den folgenden Code mit den Zugriffsinformationen aus, die Sie am Anfang dieser Übung kopiert haben, um beständige Umgebungsvariablen für die Authentifizierung bei Verwendung von Azure OpenAI-Ressourcen zuzuweisen:
+
+     ```python
+    import os
+
+    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+    os.environ["AZURE_OPENAI_API_VERSION"] = "2023-03-15-preview"
+     ```
 1. Führen Sie in einer neuen Zelle den folgenden Code aus, um Ihren Azure OpenAI-Client zu initialisieren:
 
      ```python
-    from azure.ai.openai import OpenAIClient
+    import os
+    from openai import AzureOpenAI
 
-    client = OpenAIClient(api_key="<Your_API_Key>")
-    model = client.get_model("gpt-3.5-turbo")
+    client = AzureOpenAI(
+       azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+       api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+       api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+    )
      ```
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die MLflow-Nachverfolgung zu initialisieren:     
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um MLflow-Tracking zu initialisieren und das Modell zu protokollieren:     
 
      ```python
     import mlflow
+    from openai import AzureOpenAI
 
-    mlflow.set_tracking_uri("databricks")
-    mlflow.start_run()
-     ```
+    system_prompt = "Assistant is a large language model trained by OpenAI."
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um das Modell zu protokollieren:
+    mlflow.openai.autolog()
 
-     ```python
-    mlflow.pyfunc.log_model("model", python_model=model)
+    with mlflow.start_run():
+
+        response = client.chat.completions.create(
+            model="gpt-35-turbo",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": "Tell me a joke about animals."},
+            ],
+        )
+
+        print(response.choices[0].message.content)
+        mlflow.log_param("completion_tokens", response.usage.completion_tokens)
     mlflow.end_run()
      ```
 
-## Bereitstellen des Modells
-
-1. Erstellen Sie ein neues Notebook und führen Sie in der ersten Zelle den folgenden Code aus, um eine REST-API für das Modell zu erstellen:
-
-     ```python
-    from flask import Flask, request, jsonify
-    import mlflow.pyfunc
-
-    app = Flask(__name__)
-
-    @app.route('/predict', methods=['POST'])
-    def predict():
-        data = request.json
-        model = mlflow.pyfunc.load_model("model")
-        prediction = model.predict(data["input"])
-        return jsonify(prediction)
-
-    if __name__ == '__main__':
-        app.run(host='0.0.0.0', port=5000)
-     ```
+In der obigen Zelle wird ein Experiment in Ihrem Arbeitsbereich gestartet und die Ablaufverfolgungen jeder Iteration des Chatabschlusses registriert, wobei die Eingaben, Ausgaben und Metadaten jeder Ausführung nachverfolgt werden.
 
 ## Überwachen des Modells
 
-1. Erstellen Sie in Ihrem ersten Notebook eine neue Zelle und führen Sie den folgenden Code aus, um die automatische Protokollierung von MLflow zu aktivieren:
+1. Wählen Sie in der linken Seitenleiste **Experimente** und dann das Experiment aus, das mit dem Notizbuch verknüpft ist, das Sie für diese Übung verwendet haben. Wählen Sie die letzte Ausführung aus und überprüfen Sie auf der Seite „Übersicht“, ob ein Parameter protokolliert wurde: `completion_tokens`. Der Befehl `mlflow.openai.autolog()` protokolliert standardmäßig die Spuren jedes Durchlaufs, aber Sie können mit `mlflow.log_param()` auch zusätzliche Parameter protokollieren, die später zur Überwachung des Modells verwendet werden können.
 
-     ```python
-    mlflow.autolog()
-     ```
+1. Wählen Sie die Registerkarte **Traces** (Ablaufverfolgungen) und wählen Sie dann die zuletzt erstellte aus. Stellen Sie sicher, dass der `completion_tokens`-Parameter Teil der Ausgabe der Ablaufverfolgung ist:
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um Vorhersagen und Eingabedaten zu verfolgen:
+   ![MLFlow-Ablaufverfolgungs-Benutzeroberfläche](./images/trace-ui.png)  
 
-     ```python
-    mlflow.log_param("input", data["input"])
-    mlflow.log_metric("prediction", prediction)
-     ```
-
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um den Datendrift zu überwachen:
-
-     ```python
-    import pandas as pd
-    from evidently.dashboard import Dashboard
-    from evidently.tabs import DataDriftTab
-
-    report = Dashboard(tabs=[DataDriftTab()])
-    report.calculate(reference_data=historical_data, current_data=current_data)
-    report.show()
-     ```
-
-Sobald Sie mit der Überwachung des Modells beginnen, können Sie auf der Grundlage der Erkennung von Datendrift automatisierte Umschulungspipelines einrichten.
+Nachdem Sie mit der Überwachung des Modells begonnen haben, können Sie die Ablaufverfolgungen aus verschiedenen Läufen vergleichen, um Datenabweichungen zu erkennen. Suchen Sie im Laufe der Zeit nach signifikanten Änderungen in den Eingabedatenverteilungen, Modellvorhersagen oder Leistungsmetriken. Sie können statistische Tests oder Visualisierungstools verwenden, um diese Analyse zu unterstützen.
 
 ## Bereinigung
 
