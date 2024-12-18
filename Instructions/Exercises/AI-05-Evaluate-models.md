@@ -9,7 +9,9 @@ Die Auswertung großer Sprachmodelle (LLMs) umfasst eine Reihe von Schritten, um
 
 Dieses Lab dauert ungefähr **20** Minuten.
 
-## Vorbereitung
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
+
+## Vor der Installation
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -191,7 +193,7 @@ In MLflow 2.8.0 und höher unterstützt `mlflow.evaluate()` die Auswertung einer
      ```
 Sobald die Ausführung erfolgreich war, wird ein Link zur Experimentseite generiert, auf der Sie die Modellmetriken überprüfen können. Für `model_type="question-answering"` sind die Standardmetriken **toxicity**, **ari_grade_level** und **flesch_kincaid_grade_level**.
 
-## Bereinigung
+## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
 

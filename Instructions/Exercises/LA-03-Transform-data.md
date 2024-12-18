@@ -5,13 +5,13 @@ lab:
 
 # Transformieren von Daten mit Apache Spark in Azure Databricks
 
-Azure Databricks ist eine Microsoft Azure-basierte Version der beliebten Open-Source-Databricks-Plattform. 
-
-Azure Databricks basiert auf Apache Spark und bietet eine hoch skalierbare Lösung für Datentechnik- und Analyseaufgaben, die das Arbeiten mit Daten in Dateien beinhalten.
+Azure Databricks ist eine Microsoft Azure-basierte Version der beliebten Open-Source-Databricks-Plattform. Azure Databricks basiert auf Apache Spark und bietet eine hoch skalierbare Lösung für Datentechnik- und Analyseaufgaben, die das Arbeiten mit Daten in Dateien beinhalten.
 
 Allgemeine Datentransformationsaufgaben in Azure Databricks umfassen Datenbereinigung, Durchführen von Aggregationen und Typumwandlungen. Diese Transformationen sind unerlässlich für die Vorbereitung von Daten für die Analyse und sind Teil des größeren ETL-Prozesses (Extrahieren, Transformieren, Laden).
 
 Diese Übung dauert ca. **30** Minuten.
+
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
 
 ## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
@@ -20,13 +20,13 @@ Diese Übung dauert ca. **30** Minuten.
 Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
 
 1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
-2. Verwenden Sie rechts neben der Suchleiste oben auf der Seite die Schaltfläche **[\>_]**, um eine neue Cloud Shell-Instanz im Azure-Portal zu erstellen. Wählen Sie eine ***PowerShell***-Umgebung aus, und erstellen Sie Speicher, falls Sie dazu aufgefordert werden. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
+2. Verwenden Sie die Taste **[\>_]** rechts neben der Suchleiste oben auf der Seite, um eine neue Cloud Shell im Azure-Portal zu erstellen, und wählen Sie eine ***PowerShell***-Umgebung aus. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
 
     ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
 
-    > **Hinweis:** Wenn Sie zuvor eine Cloudshell erstellt haben, die eine *Bash*-Umgebung verwendet, verwenden Sie das Dropdownmenü links oben im Bereich „Cloudshell“, um sie in ***PowerShell*** zu ändern.
+    > **Hinweis**: Wenn Sie zuvor eine Cloud-Shell erstellt haben, die eine *Bash*-Umgebung verwendet, wechseln Sie zu ***PowerShell***.
 
-3. Beachten Sie, dass Sie die Größe der Cloud Shell durch Ziehen der Trennzeichenleiste oben im Bereich ändern können oder den Bereich mithilfe der Symbole **&#8212;**, **&#9723;** und **X** oben rechts minimieren, maximieren und schließen können. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
+3. Beachten Sie, dass Sie die Größe der Cloud-Shell ändern können, indem Sie die Trennlinie oben im Bereich ziehen oder die Symbole **&#8212;**, **&#10530;** und **X** oben rechts im Bereich verwenden, um den Bereich zu minimieren, zu maximieren und zu schließen. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
 
 4. Geben Sie im PowerShell-Bereich die folgenden Befehle ein, um dieses Repository zu klonen:
 
@@ -56,7 +56,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
     > **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
 
-4. Wählen Sie zunächst in der Randleiste auf der linken Seite die Aufgabe **(+) Neu** und dann **Cluster** aus.
+4. Wählen Sie in der linken Seitenleiste die Option **(+) Neue** Aufgabe und dann **Cluster** aus (ggf. im Untermenü **Mehr** suchen).
 5. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
     - **Richtlinie:** Unrestricted
@@ -91,7 +91,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
      ```
 
 2. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
-3. Fügen Sie eine neue Codezelle hinzu, und verwenden Sie diese, um den folgenden Code auszuführen, der ein Schema für die Daten definiert:
+3. Verwenden Sie unter der Ausgabe das Symbol **+ Code**, um eine neue Codezelle hinzuzufügen, und führen Sie damit den folgenden Code aus, der ein Schema für die Daten definiert:
 
     ```python
    from pyspark.sql.types import *
@@ -115,15 +115,14 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 Beachten Sie, dass dieses Dataset einige duplizierte Zeilen und `null`-Werte in der Spalte **Steuern** enthält. Daher ist ein Bereinigungsschritt erforderlich, bevor eine weitere Verarbeitung und Analyse mit den Daten durchgeführt wird.
 
-![Tabelle mit zu bereinigenden Daten.](./images/data-cleaning.png)
-
-1. Verwenden Sie unter der vorhandenen Codezelle das Symbol **+**, um eine neue Codezelle hinzuzufügen. Geben Sie dann in der neuen Zelle den folgenden Code ein und führen Sie ihn aus, um doppelte Zeilen aus der Tabelle zu entfernen und die `null`-Einträge durch die richtigen Werte zu ersetzen:
+1. Fügen Sie eine neue Codezelle hinzu. Geben Sie dann in der neuen Zelle den folgenden Code ein und führen Sie ihn aus, um doppelte Zeilen aus der Tabelle zu entfernen und die `null`-Einträge durch die richtigen Werte zu ersetzen:
 
     ```python
     from pyspark.sql.functions import col
     df = df.dropDuplicates()
     df = df.withColumn('Tax', col('UnitPrice') * 0.08)
     df = df.withColumn('Tax', col('Tax').cast("float"))
+    display(df.limit(100))
     ```
 
 Beachten Sie, dass nach dem Aktualisieren der Werte in der Spalte **Steuern** der Datentyp erneut auf `float` festgelegt ist. Dies liegt daran, dass sich der Datentyp nach der Berechnung zu `double` ändert. Da `double` eine höhere Speicherauslastung hat als `float`, ist es besser für die Leistung, wenn die Spalte zurück zum Typ `float` umgewandelt wird.
@@ -147,7 +146,7 @@ Beachten Sie, dass nach dem Aktualisieren der Werte in der Spalte **Steuern** de
 
     - Wenn Sie einen Vorgang für einen Dataframe ausführen, ist das Ergebnis ein neuer Dataframe (in diesem Fall wird ein neuer customers-Dataframe erstellt, indem eine bestimmte Teilmenge von Spalten aus dem df-Dataframe ausgewählt wird).
     - Dataframes bieten Funktionen wie count und distinct, die zum Zusammenfassen und Filtern der darin enthaltenen Daten verwendet werden können.
-    - Die Syntax `dataframe['Field1', 'Field2', ...]` ist eine Kurzform für die Definition einer Teilmenge von Spalten. Sie können auch die **select**-Methode verwenden, sodass die erste Zeile des obigen Codes wie folgt geschrieben werden kann: `customers = df.select("CustomerName", "Email")`.
+    - Die `dataframe['Field1', 'Field2', ...]` Syntax ist eine praktische Möglichkeit zum Definieren einer Teilmenge von Spalten. Sie können auch die **select**-Methode verwenden, sodass die erste Zeile des obigen Codes wie folgt geschrieben werden kann: `customers = df.select("CustomerName", "Email")`.
 
 1. Jetzt wenden wir einen Filter an, um nur die Kunden einzuschließen, die eine Bestellung für ein bestimmtes Produkt aufgegeben haben, indem wir den folgenden Code in einer neuen Codezelle ausführen:
 
@@ -212,7 +211,7 @@ Diese Codezeile erstellt eine temporäre Ansicht, die dann direkt mit SQL-Anweis
     
 > **Hinweis:** Weitere Informationen zu Spark SQL und Dataframes finden Sie in der [Spark SQL-Dokumentation](https://spark.apache.org/docs/2.2.0/sql-programming-guide.html).
 
-## Bereinigung
+## Bereinigen
 
 Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
 

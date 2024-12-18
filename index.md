@@ -10,8 +10,8 @@ Diese Übungen sind dafür konzipiert, die folgenden Schulungsinhalte auf Micros
 
 - [Implementieren einer Data Lakehouse-Analyselösung mit Azure Databricks](https://learn.microsoft.com/training/paths/data-engineer-azure-databricks/)
 - [Implementieren einer Lösung für maschinelles Lernen mit Azure Databricks](https://learn.microsoft.com/training/paths/build-operate-machine-learning-solutions-azure-databricks/)
-- [Implementieren einer Datentechniklösung mit Azure Databricks](https://learn.microsoft.com/en-us/training/paths/azure-databricks-data-engineer/)
-- [Implementieren von Engineering mit generativer KI mit Azure Databricks](https://learn.microsoft.com/en-us/training/paths/implement-generative-ai-engineering-azure-databricks/)
+- [Implementieren einer Datentechniklösung mit Azure Databricks](https://learn.microsoft.com/training/paths/azure-databricks-data-engineer/)
+- [Implementieren von Engineering mit generativer KI mit Azure Databricks](https://learn.microsoft.com/training/paths/implement-generative-ai-engineering-azure-databricks/)
 
 Um diese Übungen abzuschließen, benötigen Sie ein Azure-Abonnement, in dem Sie über Administratorzugriff verfügen.
 
