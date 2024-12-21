@@ -9,7 +9,9 @@ Azure Databricks bietet eine einheitliche Plattform, die den KI-Lebenszyklus von
 
 Dieses Lab dauert ungefähr **20** Minuten.
 
-## Vorbereitung
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
+
+## Vor der Installation
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -183,7 +185,7 @@ In der obigen Zelle wird ein Experiment in Ihrem Arbeitsbereich gestartet und di
 
 Nachdem Sie mit der Überwachung des Modells begonnen haben, können Sie die Ablaufverfolgungen aus verschiedenen Läufen vergleichen, um Datenabweichungen zu erkennen. Suchen Sie im Laufe der Zeit nach signifikanten Änderungen in den Eingabedatenverteilungen, Modellvorhersagen oder Leistungsmetriken. Sie können statistische Tests oder Visualisierungstools verwenden, um diese Analyse zu unterstützen.
 
-## Bereinigung
+## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
 

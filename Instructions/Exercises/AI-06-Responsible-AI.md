@@ -9,7 +9,9 @@ Die Integration großer Sprachmodelle (LLMs) in Azure Databricks und Azure OpenA
 
 Dieses Lab dauert ungefähr **20** Minuten.
 
-## Vorbereitung
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
+
+## Vor der Installation
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -204,7 +206,7 @@ Verantwortungsvolle KI bezieht sich auf die ethische und nachhaltige Entwicklung
 
 Wenn Verzerrungen erkannt werden, gibt es Gegenmaßnahmen, z. B. Erneutes Sampling, Erneutes Gewichten oder Ändern der Trainingsdaten, die vor der erneuten Auswertung des Modells angewendet werden können, um sicherzustellen, dass die Verzerrung reduziert wurde.
 
-## Bereinigung
+## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
 

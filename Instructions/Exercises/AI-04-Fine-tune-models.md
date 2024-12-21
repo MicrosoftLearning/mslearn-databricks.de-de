@@ -9,7 +9,9 @@ Mit Azure Databricks können Benutzende nun die Leistungsfähigkeit von LLMs fü
 
 Dieses Lab dauert ungefähr **60** Minuten.
 
-## Vorbereitung
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
+
+## Vor der Installation
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -332,7 +334,7 @@ Da Sie nun über ein fein abgestimmtes Modell verfügen, können Sie es als benu
     print(response.choices[0].message.content)
      ```
  
-## Bereinigung
+## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
 

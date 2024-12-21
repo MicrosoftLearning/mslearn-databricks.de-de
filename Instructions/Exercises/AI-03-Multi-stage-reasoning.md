@@ -9,7 +9,9 @@ Mehrstufiges Reasoning ist ein innovativer Ansatz in der KI, bei dem komplexe Pr
 
 Dieses Lab dauert ungefähr **30** Minuten.
 
-## Vorbereitung
+> **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
+
+## Vor der Installation
 
 Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
 
@@ -268,7 +270,7 @@ Langchain ist ein vielseitiges Tool, das die Kombination mehrerer Ketten in ein 
 
 Die erste Kette stellt auf der Grundlage des bereitgestellten Beispiel-DataSets eine Antwort auf die Eingabe bereit, während die zweite Kette auf der Grundlage der Ausgabe der ersten Kette einen Beitrag in den sozialen Medien erstellt. Mit diesem Ansatz können Sie komplexere Textverarbeitungsaufgaben verarbeiten, indem Sie mehrere Schritte miteinander verketten.
 
-## Bereinigung
+## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
 
