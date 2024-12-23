@@ -41,7 +41,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
 6. Wenn Sie dazu aufgefordert werden, wählen Sie aus, welches Abonnement Sie verwenden möchten (dies geschieht nur, wenn Sie Zugriff auf mehrere Azure-Abonnements haben).
 
-7. Warten Sie, bis das Skript abgeschlossen ist. Dies dauert in der Regel etwa 5 Minuten, in einigen Fällen kann es jedoch länger dauern. Während Sie warten, lesen Sie den Artikel [Einführung in Delta Lake](https://docs.microsoft.com/azure/databricks/delta/delta-intro) in der Azure Databricks-Dokumentation.
+7. Warten Sie, bis das Skript abgeschlossen ist. Dies dauert in der Regel etwa 5 Minuten, in einigen Fällen kann es jedoch länger dauern. Während Sie warten, lesen Sie den Artikel [Planen und Orchestrieren von Workflows](https://learn.microsoft.com/azure/databricks/jobs/) in der Azure Databricks-Dokumentation.
 
 ## Erstellen eines Clusters
 
@@ -57,7 +57,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
     > **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
 
-1. Wählen Sie zunächst in der Randleiste auf der linken Seite die Aufgabe **(+) Neu** und dann **Cluster** aus.
+1. Wählen Sie in der linken Seitenleiste die Option **(+) Neue** Aufgabe und dann **Cluster** aus (ggf. im Untermenü **Mehr** suchen).
 
 1. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
@@ -73,9 +73,9 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
     > **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
 
-## Erstellen eines Notebook und Erfassen von Daten
+## Erstellen eines Notebooks und Abrufen von Quelldaten
 
-1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen. Wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, wenn er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+1. Verwenden Sie in der Randleiste den Link **(+) Neu** um ein **Notebook** zu erstellen und ändern Sie den Standard-Notebooknamen (**Untitled Notebook *[date]***) auf **Datenverarbeitung**. Wählen Sie dann in der Dropdown-Liste **Verbinden mit** Ihren Cluster aus, falls er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
 
 2. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
 
@@ -90,17 +90,15 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 ## Automatisieren der Datenverarbeitung mit Azure Databricks-Aufträgen
 
-1. Erstellen Sie ein neues Notebook, und benennen Sie es *Datenverarbeitung*, um die Identifizierung später zu erleichtern. Es wird als Aufgabe verwendet, um den Datenerfassungs- und Verarbeitungsworkflow in einem Databricks-Auftrag zu automatisieren.
-
-2. Führen Sie in der ersten Zelle des Notebooks den folgenden Code aus, um das Dataset in einen Datenframe zu laden:
+1. Ersetzen Sie den Code in der ersten Zeile des Notebooks durch den folgenden Code. Führen Sie ihn dann aus, um die Daten in einen Datenframe zu laden:
 
      ```python
     # Load the sample dataset into a DataFrame
     df = spark.read.csv('/FileStore/*.csv', header=True, inferSchema=True)
     df.show()
      ```
-     
-3. Geben Sie in einer neuen Zelle den folgenden Code ein, um Umsatzdaten nach Produktkategorie zu aggregieren:
+
+1. Fahren Sie mit der Maus unter die vorhandene Codezelle und verwenden Sie das angezeigte Symbol **+ Code**, um eine neue Codezelle hinzuzufügen. Geben Sie dann in die neue Zelle den folgenden Code ein und führen Sie ihn aus, um die Verkaufsdaten nach Produktkategorie zu aggregieren:
 
      ```python
     from pyspark.sql.functions import col, sum
@@ -110,21 +108,28 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     sales_by_category.show()
      ```
 
-4. Verwenden Sie in der Randleiste den Link **(+) Neu**, um einen **Auftrag** zu erstellen.
+1. Verwenden Sie in der Randleiste den Link **(+) Neu**, um einen **Auftrag** zu erstellen.
 
-5. Geben Sie einen Namen für die Aufgabe an, und geben Sie das Notebook an, das Sie als Quelle der Aufgabe im Feld **Pfad** erstellt haben.
+1. Ändern Sie den Standardauftragsnamen (**Neuer Auftrag *[Datum]***) in `Automated job`.
 
-6. Wählen Sie **Aufgabe erstellen**.
+1. Konfigurieren Sie die unbenannte Aufgabe im Auftrag mit den folgenden Einstellungen:
+    - **Aufgabenname**: `Run notebook`
+    - **Typ**: Notebook
+    - **Quelle**: Arbeitsbereich
+    - **Pfad**: *Wählen Sie Ihr* *Notebook für* die Datenverarbeitung aus
+    - **Cluster**: *Cluster auswählen*
 
-7. Im rechten Bereich können Sie unter **Zeitplan** den Befehl **Trigger hinzufügen** auswählen und einen Zeitplan für die Ausführung des Auftrags einrichten (z. B. täglich, wöchentlich). Für diese Übung werden wir sie jedoch manuell ausführen.
+1. Wählen Sie **Aufgabe erstellen**.
 
-8. Wählen Sie **Jetzt ausführen** aus.
+1. Wählen Sie **Jetzt ausführen** aus
 
-9. Wählen Sie im Auftragsbereich die Registerkarte **Ausführen** aus, und überwachen Sie die Ausführung des Auftrags.
+    **Tipp**: Im rechten Bereich können Sie unter **Zeitplan** die Option **Auslöser hinzufügen** auswählen und einen Zeitplan für die Ausführung des Auftrags (z. B. täglich, wöchentlich) einrichten. Für diese Übung werden wir sie jedoch manuell ausführen.
 
-10. Nachdem der Auftrag erfolgreich ausgeführt wurde, können Sie ihn in der Liste „Ausführen“ auswählen und die Ausgabe überprüfen.
+1. Wählen Sie im Auftragsbereich die Registerkarte **Ausführen** aus, und überwachen Sie die Ausführung des Auftrags.
 
-Sie haben die Erfassung und Verarbeitung von Daten mithilfe von Azure Databricks Jobs erfolgreich eingerichtet und automatisiert. Sie können diese Lösung jetzt skalieren, um komplexere Datenpipelines zu verarbeiten und in andere Azure-Dienste für eine robuste Datenverarbeitungsarchitektur zu integrieren.
+1. Nach dem erfolgreichen Ausführen des Auftrags können Sie ihn in der Liste **Ausgeführt** auswählen und die Ausgabe überprüfen.
+
+    Sie haben die Erfassung und Verarbeitung von Daten mithilfe von Azure Databricks Jobs erfolgreich eingerichtet und automatisiert. Sie können diese Lösung jetzt skalieren, um komplexere Datenpipelines zu verarbeiten und in andere Azure-Dienste für eine robuste Datenverarbeitungsarchitektur zu integrieren.
 
 ## Bereinigen
 
