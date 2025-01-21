@@ -1,170 +1,174 @@
 ---
 lab:
-  title: Implementieren von Datenschutz und Governance mithilfe von Unity Catalog und Azure Databricks
+  title: Erkunden Sie Unity Catalog in Azure Databricks
 ---
 
-# Implementieren von Datenschutz und Governance mithilfe von Unity Catalog und Azure Databricks
+# Erkunden Sie Unity Catalog in Azure Databricks
 
-Unity Catalog bietet eine zentralisierte Governance-Lösung für Daten und KI und vereinfacht die Sicherheit durch die Bereitstellung einer zentralen Stelle für die Verwaltung und Prüfung des Datenzugriffs. Es unterstützt differenzierte Zugriffssteuerungslisten (ACLs) und dynamische Datenmasken, die für den Schutz vertraulicher Informationen unerlässlich sind. 
+Unity Catalog bietet eine zentralisierte Governance-Lösung für Daten und KI und vereinfacht die Sicherheit durch die Bereitstellung einer zentralen Stelle für die Verwaltung und Prüfung des Datenzugriffs. In dieser Übung konfigurieren Sie Unity Catalog für einen Azure Databricks-Arbeitsbereich und verwenden ihn zum Verwalten von Daten.
 
-Dieses Lab dauert ungefähr **30** Minuten.
+> **Hinweis**: In einigen Fällen ist Unity Catalog möglicherweise bereits für Ihren Arbeitsbereich aktiviert. Sie können die Schritte in dieser Übung trotzdem ausführen, um Ihrem Katalog ein neues Speicherkonto zuzuweisen.
+
+Dieses Lab dauert ungefähr **45** Minuten.
 
 > **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
 
 ## Vor der Installation
 
-Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie Administratorzugriff besitzen.
+Sie benötigen ein [Azure-Abonnement](https://azure.microsoft.com/free), in dem Sie <u>globale Administratorrechte</u> besitzen.
 
-## Bereitstellen eines Azure Databricks-Arbeitsbereichs
+> **WICHTIG**: Bei dieser Übung wird davon ausgegangen, dass Sie über *globale Administratorrechte* in Ihrem Azure-Abonnement verfügen. Diese Zugriffsebene ist erforderlich, um das Databricks-Konto zu verwalten und Unity Catalog in einem Azure Databricks-Arbeitsbereich zu aktivieren.
 
-> **Tipp**: Wenn Sie bereits über einen Azure Databricks-Arbeitsbereich verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
+## Erstellen eines Azure Databricks-Arbeitsbereichs
 
-Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-Arbeitsbereichs. Das Skript versucht, eine Azure Databricks-Arbeitsbereichsressource im *Premium*-Tarif in einer Region zu erstellen, in der Ihr Azure-Abonnement über ein ausreichendes Kontingent für die in dieser Übung erforderlichen Computekerne verfügt. Es wird davon ausgegangen, dass Ihr Benutzerkonto über ausreichende Berechtigungen im Abonnement verfügt, um eine Azure Databricks-Arbeitsbereichsressource zu erstellen. Wenn das Skript aufgrund unzureichender Kontingente oder Berechtigungen fehlschlägt, können Sie versuchen, [einen Azure Databricks-Arbeitsbereich interaktiv im Azure-Portal zu erstellen](https://learn.microsoft.com/azure/databricks/getting-started/#--create-an-azure-databricks-workspace).
+> **Tipp**: Wenn Sie bereits über einen Premium-Arbeitsbereich für Azure Databricks verfügen, können Sie dieses Verfahren überspringen und Ihren vorhandenen Arbeitsbereich verwenden.
 
-1. Melden Sie sich in einem Webbrowser am [Azure-Portal](https://portal.azure.com) unter `https://portal.azure.com` an.
-2. Verwenden Sie die Taste **[\>_]** rechts neben der Suchleiste oben auf der Seite, um eine neue Cloud Shell im Azure-Portal zu erstellen, und wählen Sie eine ***PowerShell***-Umgebung aus. Die Cloud Shell bietet eine Befehlszeilenschnittstelle in einem Bereich am unteren Rand des Azure-Portals, wie hier gezeigt:
+1. Melden Sie sich beim **Azure-Portal** unter `https://portal.azure.com` an.
+2. Erstellen Sie eine **Azure Databricks**-Ressource mit den folgenden Einstellungen:
+    - **Abonnement:** *Wählen Sie Ihr Azure-Abonnement aus.*
+    - **Ressourcengruppe**: *Erstellen einer neuen Ressourcengruppe mit dem Namen `msl-xxxxxxx` (wobei „xxxxxxx“ ein eindeutiger Wert ist)*
+    - **Arbeitsbereichsname**: `databricks-xxxxxxx`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
+    - **Region**: *Wählen Sie eine beliebige verfügbare Region aus.*
+    - **Preisstufe**: *Premium* oder *Testversion*
+    - **Gruppenname der verwalteten Ressource**: `databricks-xxxxxxx-managed`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
 
-    ![Azure-Portal mit einem Cloud Shell-Bereich](./images/cloud-shell.png)
+    ![Screenshot der Seite „Azure Databricks-Arbeitsbereich erstellen“ im Azure-Portal.](./images/create-databricks.png)
 
-    > **Hinweis**: Wenn Sie zuvor eine Cloud-Shell erstellt haben, die eine *Bash*-Umgebung verwendet, wechseln Sie zu ***PowerShell***.
+3. Wählen Sie **Überprüfen + Erstellen** und warten Sie, bis die Bereitstellung abgeschlossen ist.
 
-3. Beachten Sie, dass Sie die Größe der Cloud-Shell ändern können, indem Sie die Trennlinie oben im Bereich ziehen oder die Symbole **&#8212;**, **&#10530;** und **X** oben rechts im Bereich verwenden, um den Bereich zu minimieren, zu maximieren und zu schließen. Weitere Informationen zur Verwendung von Azure Cloud Shell finden Sie in der [Azure Cloud Shell-Dokumentation](https://docs.microsoft.com/azure/cloud-shell/overview).
+## Vorbereiten des Speichers für den Katalog
 
-4. Geben Sie im PowerShell-Bereich die folgenden Befehle ein, um dieses Repository zu klonen:
+Bei Verwendung von Unity Catalog in Azure Databricks werden Daten in einem externen Speicher gespeichert, der für mehrere Arbeitsbereiche freigegeben werden kann. In Azure ist es üblich, zu diesem Zweck ein Azure Storage-Konto mit Unterstützung für einen hierarchischen Azure Data Lake Storage Gen2-Namespace zu verwenden.
 
-     ```powershell
-    rm -r mslearn-databricks -f
-    git clone https://github.com/MicrosoftLearning/mslearn-databricks
-     ```
-
-5. Nachdem das Repository geklont wurde, geben Sie den folgenden Befehl ein, um das Skript **setup.ps1** auszuführen, das einen Azure Databricks-Arbeitsbereich in einer verfügbaren Region bereitstellt:
-
-     ```powershell
-    ./mslearn-databricks/setup.ps1
-     ```
-
-6. Wenn Sie dazu aufgefordert werden, wählen Sie aus, welches Abonnement Sie verwenden möchten (dies geschieht nur, wenn Sie Zugriff auf mehrere Azure-Abonnements haben).
-
-7. Warten Sie, bis das Skript abgeschlossen ist. Dies dauert in der Regel etwa 5 Minuten, in einigen Fällen kann es jedoch länger dauern. Während Sie warten, lesen Sie den Artikel [Data Governance mit Unity-Katalog](https://learn.microsoft.com/azure/databricks/data-governance/) in der Azure Databricks-Dokumentation.
-
-## Erstellen eines Clusters
-
-Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
-
-> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen und dieses Verfahren zu überspringen.
-
-1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält).
-
-1. Wählen Sie die Ressource Ihres Azure Databricks-Diensts aus (sie trägt den Namen **databricks-*xxxxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben).
-
-1. Verwenden Sie auf der Seite **Übersicht** für Ihren Arbeitsbereich die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich auf einer neuen Browserregisterkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
-
-    > **Tipp**: Während Sie das Databricks-Arbeitsbereichsportal verwenden, werden möglicherweise verschiedene Tipps und Benachrichtigungen angezeigt. Schließen Sie diese, und folgen Sie den Anweisungen, um die Aufgaben in dieser Übung auszuführen.
-
-1. Wählen Sie in der linken Seitenleiste die Option **(+) Neue** Aufgabe und dann **Cluster** aus (ggf. im Untermenü **Mehr** suchen).
-
-1. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
-    - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
-    - **Richtlinie:** Unrestricted
-    - **Clustermodus**: Einzelknoten
-    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
-    - **Databricks-Runtimeversion**: 13.3 LTS (Spark 3.4.1, Scala 2.12) oder höher
-    - **Photonbeschleunigung verwenden**: Ausgewählt
-    - **Knotentyp**: Standard_D4ds_v5
-    - **Beenden nach** *20* **Minuten Inaktivität**
-
-1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
-
-    > **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
-
-## Einrichten des Unity Catalog
-
-In den Metastore-Registern von Unity Catalog werden Metadaten über sicherheitsrelevante Objekte (z.B. Tabellen, Datenträger, externe Speicherorte und Freigaben) und die Berechtigungen für den Zugriff auf diese Objekte gespeichert. Jeder Metastore stellt einen 3-Level-Namespace (`catalog`.`schema``table`) zur Verfügung, durch den Daten organisiert werden können. Sie müssen einen Metastore für jede Region erstellen, in der Ihre Organisation tätig ist. Um mit Unity Catalog zu arbeiten, müssen sich die Benutzer in einem Arbeitsbereich befinden, der einem Metastore in ihrer Region zugeordnet ist.
-
-1. Wählen Sie in der Randleiste **Katalog** aus.
-
-2. Im Katalog-Explorer sollte ein Standard-Unity Catalog mit Ihrem Arbeitsbereichsnamen (**databricks-*xxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben) vorhanden sein. Wählen Sie den Katalog aus, und wählen Sie dann oben im rechten Bereich **Schema erstellen** aus.
-
-3. Benennen Sie das neue Schema **E-Commerce**, wählen Sie den Speicherort aus, der mit Ihrem Arbeitsbereich erstellt wurde, und wählen Sie **Erstellen** aus.
-
-4. Wählen Sie Ihren Katalog aus, und wählen Sie im rechten Bereich die Registerkarte ** Arbeitsbereiche** aus. Vergewissern Sie sich, dass Ihr Arbeitsbereich auf `Read & Write` zugreifen kann.
-
-## Erfassen von Beispieldaten in Azure Databricks
-
-1. Herunterhladen der Beispieldaten:
-   * [customers.csv](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/DE-05/customers.csv)
-   * [products.csv](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/DE-05/products.csv)
-   * [sales.csv](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/DE-05/sales.csv)
-
-2. Wählen Sie im Azure Databricks-Arbeitsbereich oben im Katalog-Explorer die Option **+** und dann **Daten hinzufügen** aus.
-
-3. Wählen Sie im neuen Fenster **Dateien auf Volume hochladen** aus.
-
-4. Navigieren Sie im neuen Fenster zu Ihrem `ecommerce` Schema, erweitern Sie es, und wählen Sie **Volume erstellen** aus.
-
-5. Benennen Sie das neue Volume **sample_data,** und wählen Sie **Erstellen** aus.
-
-6. Wählen Sie das neue Volume aus, und laden Sie die Dateien `customers.csv`, `products.csv` und `sales.csv` hoch. Wählen Sie die Option **Hochladen**.
-
-7. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen. Wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, wenn er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
-
-8. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, um Tabellen aus den CSV-Dateien zu erstellen:
-
-     ```python
-    # Load Customer Data
-    customers_df = spark.read.format("csv").option("header", "true").load("/Volumes/databricksxxxxxxx/ecommerce/sample_data/customers.csv")
-    customers_df.write.saveAsTable("ecommerce.customers")
-
-    # Load Sales Data
-    sales_df = spark.read.format("csv").option("header", "true").load("/Volumes/databricksxxxxxxx/ecommerce/sample_data/sales.csv")
-    sales_df.write.saveAsTable("ecommerce.sales")
-
-    # Load Product Data
-    products_df = spark.read.format("csv").option("header", "true").load("/Volumes/databricksxxxxxxx/ecommerce/sample_data/products.csv")
-    products_df.write.saveAsTable("ecommerce.products")
-     ```
-
->**Hinweis:** Ersetzen Sie im `.load` Dateipfad `databricksxxxxxxx` durch Ihren Katalognamen.
-
-9. Navigieren Sie im Katalog-Explorer zum Schema `ecommerce` und überprüfen Sie, ob sich die neuen Tabellen darin befinden.
+1. Erstellen Sie im Azure-Portal eine neue **Speicherkonto**-Ressource mit den folgenden Einstellungen:
+    - **Grundlagen**:
+        - **Abonnement:** *Wählen Sie Ihr Azure-Abonnement aus.*
+        - **Ressourcengruppe**: *Wählen Sie die vorhandene **msl-xxxxxxx**-Ressourcengruppe aus, in der Sie den Azure Databricks-Arbeitsbereich erstellt haben.*
+        - **Name des Speicherkontos**: `storexxxxxxx`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
+        - **Region**: *Wählen Sie die <u>Region aus, in der Sie den Azure Databricks-Arbeitsbereich erstellt haben</u>*
+        - **Primärer Dienst**: Azure Blob Storage oder Azure Data Lake Storage Gen 2
+        - **Leistung**: Standard
+        - **Redundanz**: Lokal redundanter Speicher (LRS) *(Für eine Nichtproduktionslösung wie diese Übung hat diese Option niedrigere Kosten und Vorteile beim Kapazitätsverbrauch)*
+    - **Erweitert:**
+        - **Hierarchischen Namenspace aktivieren**: *Ausgewählt*
     
-## Einrichten von ACLs und dynamischer Datenmaskierung
+    ![Screenshot der Seite „Erweiterte Einstellungen für Speicherkonto erstellen“ im Azure-Portal.](./images/create-storage.png)
 
-Zugriffskontrolllisten (ACLs) sind ein grundlegender Aspekt der Datensicherheit in Azure Databricks. Sie ermöglichen es Ihnen, Berechtigungen für verschiedene Arbeitsbereichsobjekte zu konfigurieren. Mit dem Unity Catalog können Sie die Verwaltung und Prüfung des Datenzugriffs zentralisieren und so ein feinkörniges Sicherheitsmodell bereitstellen, das für die Verwaltung von Daten und KI-Assets unerlässlich ist. 
+1. Wählen Sie **Überprüfen + Erstellen** und warten Sie, bis die Bereitstellung abgeschlossen ist.
+1. Wenn die Bereitstellung abgeschlossen ist, wechseln Sie zur bereitgestellten Speicherkontoressource *storexxxxxxx* und verwenden Sie deren Seite **Speicherbrowser**, um einen neuen BLOB-Container mit dem Namen `data` hinzuzufügen. Hier werden die Daten für Ihre Unity Catalog-Objekte gespeichert.
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um eine sichere Ansicht der `customers`-Tabelle zu erstellen, um den Zugriff auf PII-Daten (personenbezogene Informationen) einzuschränken.
+    ![Screenshot des Bereichs „Container erstellen“ auf der Seite „Speicherbrowser“ im Azure-Portal.](./images/create-container.png)
 
-     ```sql
-    CREATE VIEW ecommerce.customers_secure_view AS
-    SELECT 
-        customer_id, 
-        name, 
-        address,
-        city,
-        state,
-        zip_code,
-        country, 
-        CASE 
-            WHEN current_user() = 'admin_user@example.com' THEN email
-            ELSE NULL 
-        END AS email, 
-        CASE 
-            WHEN current_user() = 'admin_user@example.com' THEN phone 
-            ELSE NULL 
-        END AS phone
-    FROM ecommerce.customers;
-     ```
+## Konfigurieren des Zugriffs auf den Katalogspeicher
 
-2. Fragen Sie in der sicheren Ansicht Folgendes ab:
+Um auf den BLOB-Container zuzugreifen, den Sie für Unity Catalog erstellt haben, muss Ihr Azure Databricks-Arbeitsbereich ein verwaltetes Konto verwenden, um über einen *Zugriffsconnector* eine Verbindung mit dem Speicherkonto herzustellen.
 
-     ```sql
-    SELECT * FROM ecommerce.customers_secure_view
-     ```
+1. Erstellen Sie im Azure-Portal einen neuen **Access-Connector für die Azure Databricks**-Ressource mit den folgenden Einstellungen:
+    - **Abonnement:** *Wählen Sie Ihr Azure-Abonnement aus.*
+    - **Ressourcengruppe**: *Wählen Sie die vorhandene **msl-xxxxxxx**-Ressourcengruppe aus, in der Sie den Azure Databricks-Arbeitsbereich erstellt haben.*
+    - **Name**: `connector-xxxxxxx`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
+    - **Region**: *Wählen Sie die <u>Region aus, in der Sie den Azure Databricks-Arbeitsbereich erstellt haben</u>*
 
-Stellen Sie sicher, dass der Zugriff auf die PII-Spalten (E-Mail und Telefon) eingeschränkt ist, da Sie nicht als `admin_user@example.com` auf die Daten zugreifen.
+    ![Screenshot der Seite „Zugriffsconnector für Azure Databricks erstellen“ im Azure-Portal.](./images/create-connector.png)
+
+1. Wählen Sie **Überprüfen + Erstellen** und warten Sie, bis die Bereitstellung abgeschlossen ist. Gehen Sie dann zur bereitgestellten Ressource und finden Sie auf der **Überblickseite** den Hinweis **Ressourcen-ID**, die im Format */subscriptions/abc-123.../resourceGroups/msl-xxxxxxx/providers/Microsoft.Databricks/accessConnectors/connector-xxxxxxx* vorliegen sollte – diese benötigen Sie später.
+1. Kehren Sie im Azure-Portal zur Speicherkonto-Ressource *storexxxxxxx* zurück und fügen Sie auf deren Seite **Zugriffssteuerung (IAM)** eine neue Rollenzuweisung hinzu.
+1. Suchen Sie in der Liste der **Stellenfunktionsrollen** nach der Rolle `Storage blob data contributor` und wählen Sie sie aus.
+
+    ![Screenshot der Seite „Rollenzuweisung hinzufügen“ im Azure-Portal.](./images/role-assignment-search.png)
+
+1. Wählen Sie **Weiter** aus. Wählen Sie dann auf der Seite **Mitglieder** die Option zum Zuweisen des Zugriffs auf eine **verwaltete Identität** aus und suchen Sie dann den zuvor erstellten Zugriffsconnector `connector-xxxxxxx` für Azure Databricks (alle anderen Zugriffsconnectors, die in Ihrem Abonnement erstellt wurden, können Sie ignorieren).
+
+    ![Screenshot des Bereichs „Verwaltete Identitäten auswählen“ im Azure-Portal.](./images/managed-identity.png)
+
+1. Überprüfen Sie die Rolle „Mitgliedschaft“ und weisen Sie sie zu, um die verwaltete Identität für Ihren Zugriffsconnector *connector-xxxxxxx* für Azure Databricks zur Rolle „Storage blob data contributor“ für Ihr Speicherkonto *storexxxxxxx* hinzuzufügen, damit dieses auf Daten im Speicherkonto zugreifen kann.
+
+## Konfigurieren des Unity-Katalogs
+
+Nachdem Sie nun einen Blob Storage-Container für Ihren Katalog erstellt und eine Möglichkeit für eine von Azure Databricks verwaltete Identität bereitgestellt haben, um darauf zuzugreifen, können Sie Unity Catalog so konfigurieren, dass ein Metastore basierend auf Ihrem Speicherkonto verwendet wird.
+
+1. Rufen Sie im Azure-Portal die Ressourcengruppe **msl-*xxxxxxx*** auf, die nun drei Ressourcen enthalten sollte:
+    - Der **databricks-*xxxxxxx*** Azure Databricks-Arbeitsbereich
+    - Das **Geschäft*xxxxxxx*** Lagerkonto
+    - Der **connector-*xxxxxxx*** Zugriffs-Connector für Azure Databricks
+
+1. Öffnen Sie die **databricks-xxxxxxx** Azure Databricks-Arbeitsbereichsressource, die Sie früher erstellt haben, und verwenden Sie auf der **Überblickseite** die Schaltfläche **Arbeitsbereich starten**, um Ihren Azure Databricks-Arbeitsbereich in einer neuen Browser-Registerkarte zu öffnen. Melden Sie sich an, wenn Sie dazu aufgefordert werden.
+1. Wählen Sie im Menü **databricks-*xxxxxxx*** oben rechts die Option **Konto verwalten** aus, um die Azure Databricks-Kontokonsole in einem anderen Tab zu öffnen.
+
+    ![Screenshot des Menüelements „Konto verwalten“ in einem Azure Databricks-Arbeitsbereich.](./images/manage-account-menu.png)
+
+    > **Hinweis**: Wenn ***Konto verwalten*** nicht aufgeführt ist oder sich nicht erfolgreich öffnen lässt, müssen Sie Ihr Konto möglicherweise von einem globalen Administrator zur Rolle ***Kontoadministrator*** in Ihrem Azure Databricks-Arbeitsbereich hinzufügen lassen.
+    >
+    > Wenn Sie ein persönliches Azure-Abonnement verwenden, das Sie mit einem persönlichen Microsoft-Konto (z. B. einem oultook.com-Konto) erstellt haben, wurde möglicherweise automatisch ein „externes“ Entra-ID-Konto in Ihrem Azure-Verzeichnis erstellt, und Sie müssen sich möglicherweise mit diesem Kontonamen anmelden.
+    >
+    > Hilfe finden Sie in ***[diesem Frage-und-Antwort-Thread](https://learn.microsoft.com/answers/questions/2133569/not-able-to-access-databricks-manage-account-conso)***.
+
+1. Wählen Sie in der Azure Databricks-Kontokonsole auf der Seite **Katalog** die Option **Metastore erstellen** aus.
+1. Erstellen Sie einen neuen Metastore mit den folgenden Einstellungen:
+    - **Name**: `metastore-xxxxxxx`*(wobei xxxxxxx der eindeutige Wert ist, den Sie in dieser Übung für Ressourcen verwendet haben)*
+    - **Region**: *Wählen Sie die Region aus, in der Sie Ihre Azure-Ressourcen erstellt haben*
+    - **ADLS Gen 2 Pfad**: `data@storexxxxxxx.dfs.core.windows.net/`*(wobei storexxxxxx der Name Ihres Speicherkontos ist)*
+    - **Access Connector-ID**: *Die Ressourcen-ID für Ihren Access Connector (von der Überblickseite im Azure-Portal kopiert)*
+
+    ![Screenshot der Seite „Metastore erstellen“ in der Azure Databricks-Kontokonsole.](./images/create-metastore.png)
+
+1. Wählen Sie nach dem Erstellen des Metastores den Arbeitsbereich **databricks-*xxxxxxx*** aus und weisen Sie ihm den Metastore zu.
+
+    ![Screenshot der Seite „Metastore erstellen“ in der Azure Databricks-Kontokonsole.](./images/assign-metastore.png)
+
+## Arbeiten mit Daten im Unity-Katalog
+
+Nachdem Sie einen „Eternal Metastore“ zugewiesen und Unity Catalog aktiviert haben, können Sie damit mit Daten in Azure Databricks arbeiten.
+
+### Erstellen und Laden einer Tabelle
+
+1. Schließen Sie die Registerkarte „Browser“ der Azure Databricks-Kontokonsole und kehren Sie zur Registerkarte für Ihren Azure Databricks-Arbeitsbereich zurück. Aktualisieren Sie dann <u>den Browser</u>.
+1. Wählen Sie auf der Seite **Katalog** den **Hauptkatalog** für Ihre Organisation aus. Hinweis: Die Schemas **default** und **Information_schema** wurden bereits in Ihrem Katalog erstellt.
+
+    ![Screenshot des Hauptkatalogs in einem Azure Databricks-Arbeitsbereich.](./images/main-catalog.png)
+
+1. Wählen Sie **Create Schema** aus und erstellen Sie ein neues Schema mit dem Namen `sales` (lassen Sie den Speicherort unangegeben, damit der Standard-Metastore für den Katalog verwendet wird).
+1. Laden Sie die Datei [**products.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv) von `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/products.csv` auf Ihren lokalen Computer herunter und speichern Sie sie als **products.csv**.
+1. Wählen Sie im Katalog-Explorer im Azure Databricks-Arbeitsbereich bei ausgewähltem **sales**-Schema **Create** > **Create table** aus. Laden Sie dann die **products.csv**-Datei hoch, die Sie heruntergeladen haben, um eine neue Tabelle mit dem Namen **products** im **sales**-Schema zu erstellen.
+
+    > **Hinweis**: Es kann einige Minuten dauern, bis die serverlose Berechnung gestartet wird.
+
+    ![Screenshot der Benutzeroberfläche „Create Table“ in einem Azure Databricks-Arbeitsbereich.](./images/create-table.png)
+
+1. Erstellen Sie die -Tabelle. Wenn eine KI-generierte Beschreibung vorgeschlagen wird, akzeptieren Sie diese.
+
+### Verwalten von Berechtigungen
+
+1. Vergewissern Sie sich bei ausgewählter Tabelle **Produkte** auf der Registerkarte **Berechtigungen**, dass der neuen Tabelle standardmäßig keine Berechtigungen zugewiesen sind (Sie können darauf zugreifen, weil Sie über vollständige Administratorrechte verfügen, aber keine anderen Benutzende können die Tabelle abfragen).
+1. Wählen Sie **Grant** aus und konfigurieren Sie den Zugriff auf die Tabelle wie folgt:
+    - **Auftraggeber**: Alle Kontonutzende
+    - **Privilegien**: AUSWÄHLEN
+    - **Für den Zugriff sind zusätzliche Berechtigungen erforderlich**: Erteilen Sie auch die Berechtigung „USE SCHEMA“ für „main.sales“
+
+    ![Screenshot der Benutzeroberfläche für Zuschussberechtigungen in einem Azure Databricks-Arbeitsbereich.](./images/grant-permissions.png)
+
+### Verfolgen der Herkunft
+
+1. Wählen Sie im Menü **+ Neu** die Option **Abfrage** aus und erstellen Sie eine neue Abfrage mit dem folgenden SQL-Code:
+
+    ```sql
+    SELECT Category, COUNT(*) AS Number_of_Products
+    FROM main.sales.products
+    GROUP BY Category; 
+    ```
+
+1. Stellen Sie sicher, dass die serverlose Datenverarbeitung verbunden ist, und führen Sie die Abfrage aus, um die Ergebnisse anzuzeigen.
+
+    ![Screenshot der Abfrageoberfläche in einem Azure Databricks-Arbeitsbereich.](./images/query-results.png)
+
+1. Speichern Sie die Abfrage als `Products by Category` im Arbeitsbereichsordner für Ihr Azure Databricks-Benutzerkonto.
+1. Kehren Sie zur Seite **Katalog** zurück. Erweitern Sie dann den **Haupt-** Katalog und das **Verkaufs-** Schema und wählen Sie die **Produkte**-Tabelle aus.
+1. Wählen Sie auf der Registerkarte **Vererbung** die Option **Abfragen** aus, um zu überprüfen, ob die Vererbung von der von Ihnen erstellten Abfrage zur Quelltabelle von Unity Catalog nachverfolgt wurde.
+
+    ![Screenshot der Tabellen-Linienansicht in einem Azure Databricks-Arbeitsbereich.](./images/table-lineage.png)
 
 ## Bereinigen
 
-Wählen Sie zunächst im Azure Databricks-Portal auf der Seite **Compute** Ihren Cluster und dann **&#9632; Beenden** aus, um ihn herunterzufahren.
+In dieser Übung haben Sie Unity Catalog für einen Azure Databricks-Arbeitsbereich aktiviert und konfiguriert und ihn für die Arbeit mit Daten in einem Metastore verwendet. Weitere Informationen zu den Möglichkeiten von Unity Catalog in Azure Databricks finden Sie unter [Data Governance mit Unity Catalog](https://learn.microsoft.com/azure/databricks/data-governance/).
 
 Wenn Sie die Erkundung von Azure Databricks abgeschlossen haben, löschen Sie die erstellten Ressourcen, um unnötige Azure-Kosten zu vermeiden und Kapazität in Ihrem Abonnement freizugeben.

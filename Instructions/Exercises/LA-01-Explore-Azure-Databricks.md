@@ -23,9 +23,12 @@ Diese Übung dauert ca. **20** Minuten.
 2. Erstellen Sie eine **Azure Databricks**-Ressource mit den folgenden Einstellungen:
     - **Abonnement:** *Wählen Sie Ihr Azure-Abonnement aus.*
     - **Ressourcengruppe**: *Erstellen einer neuen Ressourcengruppe mit dem Namen `msl-xxxxxxx` (wobei „xxxxxxx“ ein eindeutiger Wert ist)*
+    - **Arbeitsbereichsname**: `databricks-xxxxxxx`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
     - **Region**: *Wählen Sie eine beliebige verfügbare Region aus.*
-    - **Name**: `databricks-xxxxxxx`*(wobei „xxxxxxx“ ein eindeutiger Wert ist)*
     - **Preisstufe**: *Premium* oder *Testversion*
+    - **Gruppenname der verwalteten Ressource**: `databricks-xxxxxxx-managed`*(wobei „xxxxxxx“ der Wert ist, der im Ressourcengruppennamen verwendet wird)*
+
+    ![Screenshot der Seite „Azure Databricks-Arbeitsbereich erstellen“ im Azure-Portal.](./images/create-databricks.png)
 
 3. Wählen Sie **Überprüfen + Erstellen** und warten Sie, bis die Bereitstellung abgeschlossen ist. Wechseln Sie dann zur Ressource, und starten Sie den Arbeitsbereich.
 

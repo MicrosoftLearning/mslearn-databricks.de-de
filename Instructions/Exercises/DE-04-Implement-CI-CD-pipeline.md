@@ -7,7 +7,7 @@ lab:
 
 Die Implementierung von CI/CD-Workflows mit GitHub Actions und Azure Databricks kann Ihren Entwicklungsprozess optimieren und die Automatisierung verbessern. GitHub-Aktionen bieten eine leistungsstarke Plattform zum Automatisieren von Softwareworkflows, einschließlich Continuous Integration (CI) und Continuous Delivery (CD). Wenn diese Workflows in Azure Databricks integriert sind, können komplexe Datenaufgaben wie das Ausführen von Notebooks oder das Bereitstellen von Updates in Databricks-Umgebungen ausgeführt werden. Sie können beispielsweise GitHub-Aktionen verwenden, um die Bereitstellung von Databricks-Notebooks zu automatisieren, Databricks-Dateisystemuploads zu verwalten und die Databricks-CLI in Ihren Workflows einzurichten. Diese Integration sorgt dafür, dass der Entwicklungszyklus effizienter und fehlersicherer ist, insbesondere für datengesteuerte Anwendungen.
 
-Dieses Lab dauert ungefähr **40** Minuten.
+Dieses Lab dauert ungefähr **30** Minuten.
 
 > **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
 
@@ -74,33 +74,18 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 1. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
 
     > **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
-
-## Erstellen eines Notebook und Erfassen von Daten
-
-1. Verwenden Sie in der Randleiste den Link **(+) Neu**, um ein **Notebook** zu erstellen und den Standardnamen des Notebooks (**Unbenanntes Notebook *[Datum]***) in **CICD-Notebook** zu ändern. Wählen Sie dann in der Dropdown-Liste **Verbinden mit** Ihren Cluster aus, falls er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
-
-1. Geben Sie in der ersten Zelle des Notebooks den folgenden Code ein, der mit *Shellbefehlen* die Datendateien von GitHub in das von Ihrem Cluster verwendete Dateisystem herunterlädt.
-
-     ```python
-    %sh
-    rm -r /dbfs/FileStore
-    mkdir /dbfs/FileStore
-    wget -O /dbfs/FileStore/sample_sales.csv https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales.csv
-     ```
-
-1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
    
 ## Einrichten eines GitHub-Repositorys
 
 Nachdem Sie ein GitHub-Repository mit einem Azure Databricks-Arbeitsbereich verbunden haben, können Sie CI/CD-Pipelines einrichten, die bei jeder Änderung ausgelöst werden, die an Ihrem Repository vorgenommen wird.
 
-1. Navigieren Sie zu Ihrem [GitHub-Konto](https://github.com/) und erstellen Sie ein neues privates Repository mit einem geeigneten Namen (z. B. *databricks-cicd-repo*).
+1. Gehen Sie zu Ihrem [GitHub-Konto](https://github.com/) und erstellen Sie ein neues privates Repository mit einem geeigneten Namen (z. B. *databricks-cicd-repo*).
 
 1. Klonen Sie das leere Repository mit dem Befehl [git clone](https://git-scm.com/docs/git-clone) auf Ihren lokalen Computer.
 
 1. Laden Sie die erforderlichen Dateien für diese Übung in den lokalen Ordner Ihres Repositorys herunter:
    - [CSV-Datei](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales.csv)
-   - [Databricks-Notebook](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales_notebook.dbc)
+   - [Databricks-Notebook](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/sample_sales_notebook.py)
    - [Auftragskonfigurationsdatei](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/job-config.json):
 
 1. Fügen Sie die Dateien in Ihrem lokalen Klon des Git-Repositorys [hinzu](https://git-scm.com/docs/git-add). Dann [committen](https://git-scm.com/docs/git-commit) Sie die Änderungen und [pushen](https://git-scm.com/docs/git-push) Sie sie in das Repository.
@@ -115,31 +100,31 @@ Bevor Sie Repositoryschlüssel erstellen, müssen Sie in Azure Databricks ein pe
 
 1. Wählen Sie in Ihrem Azure Databricks-Arbeitsbereich das Symbol *Benutzende* in der oberen Leiste aus und wählen Sie dann **Einstellungen** aus dem Dropdownmenü aus.
 
-2. Auf der Seite **Fachkraft in der Entwicklung** neben **Zugriffstoken** **Verwalten** auswählen.
+1. Auf der Seite **Fachkraft in der Entwicklung** neben **Zugriffstoken** **Verwalten** auswählen.
 
-3. Wählen Sie **Neues Token generieren** und dann **Generieren** aus.
+1. Wählen Sie **Neues Token generieren** und dann **Generieren** aus.
 
-4. Kopieren Sie das angezeigte Token, und fügen Sie es an einer beliebigen Stelle ein, auf die Sie später verweisen können. Wählen Sie dann **Fertig** aus.
+1. Kopieren Sie das angezeigte Token, und fügen Sie es an einer beliebigen Stelle ein, auf die Sie später verweisen können. Wählen Sie dann **Fertig** aus.
 
-5. Wählen Sie nun auf Ihrer GitHub-Repository-Seite die Registerkarte **Einstellungen** aus.
+1. Wählen Sie nun auf Ihrer GitHub-Repository-Seite die Registerkarte **Einstellungen** aus.
 
    ![Registerkarte „GitHub-Einstellungen“](./images/github-settings.png)
 
-6. Wählen Sie in der linken Randleiste **Geheime Schlüssel und Variablen** und dann ** Aktionen** aus.
+1. Wählen Sie in der linken Randleiste **Geheime Schlüssel und Variablen** und dann ** Aktionen** aus.
 
-7. Wählen Sie **Neuer Repositoryschlüssel** aus und fügen Sie jede dieser Variablen hinzu:
+1. Wählen Sie **Neuer Repositoryschlüssel** aus und fügen Sie jede dieser Variablen hinzu:
    - **Name:** DATABRICKS_HOST **Geheimer Schlüssel:** Fügen Sie die URL Ihres Databricks-Arbeitsbereichs hinzu.
    - **Name:** DATABRICKS_TOKEN **Geheimer Schlüssel:** Fügen Sie das zuvor generierte Zugriffstoken hinzu.
 
-## Einrichten von CI-/CD-Pipelines
+## Einrichten von CI-Pipelines
 
-Nachdem Sie nun die erforderlichen Variablen für den Zugriff auf Ihren Azure Databricks-Arbeitsbereich von GitHub gespeichert haben, erstellen Sie Workflows zum Automatisieren der Datenaufnahme und -verarbeitung, die jedes Mal ausgelöst wird, wenn das Repository aktualisiert wird.
+Nachdem Sie die erforderlichen Anmeldeinformationen für den Zugriff auf Ihren Azure Databricks-Arbeitsbereich von GitHub gespeichert haben, erstellen Sie einen Workflow, um das Erfassen von Daten zu automatisieren. Er wird bereitgestellt, wenn für den Hauptzweig des Repositorys ein Push-Commit oder eine Pull-Anfrage zusammengeführt wurde. Dieser Workflow stellt sicher, dass die im Azure Databricks-Arbeitsbereich verwendete Datenquelle immer auf dem neuesten Stand ist.
 
 1. Wählen auf Ihrer Repository-Seite die Registerkarte **Aktionen** aus.
 
     ![Registerkarte „GitHub Actions“](./images/github-actions.png)
 
-2. Wählen Sie **Workflow selbst einrichten** aus und geben Sie den folgenden Code ein:
+1. Wählen Sie **Workflow selbst einrichten** aus und geben Sie den folgenden Code ein:
 
      ```yaml
     name: CI Pipeline for Azure Databricks
@@ -176,25 +161,38 @@ Nachdem Sie nun die erforderlichen Variablen für den Zugriff auf Ihren Azure Da
             ${{ secrets.DATABRICKS_TOKEN }}
             EOF
 
-        - name: Download Sample Data from DBFS
-          run: databricks fs cp dbfs:/FileStore/sample_sales.csv . --overwrite
+        - name: Upload sample data to DBFS
+          run: databricks fs cp sample_sales.csv dbfs:/FileStore/sample_sales.csv --overwrite
      ```
 
-    Dieser Code installiert und konfiguriert die Databricks-Befehlszeilenschnittstelle und lädt die Beispieldaten jedes Mal in Ihr Repository herunter, wenn ein Commit gepusht wird oder ein Pull Request zusammengeführt wird.
+    Mit dem obigen Code wird Databricks CLI installiert und konfiguriert und die Beispieldaten aus Ihrem Repository in Ihren Arbeitsbereich kopiert.
 
-3. Benennen Sie den Workflow **CI_pipeline.yml** und wählen Sie **Änderungen committen** aus. Die Pipeline wird automatisch ausgeführt, und Sie können den Status auf der Registerkarte **Aktionen** überprüfen.
+1. Benennen Sie den Workflow **CI_pipeline.yml** und wählen Sie **Änderungen committen** aus. Die Pipeline wird automatisch ausgeführt, und Sie können den Status auf der Registerkarte **Aktionen** überprüfen.
 
-    Sobald der Workflow abgeschlossen ist, ist es an der Zeit, die Konfigurationen für Ihre CD-Pipeline einzurichten.
+1. Sobald der Arbeitsablauf abgeschlossen ist, gehen Sie zu Ihrer Arbeitsbereichsseite, wählen Sie **+ Neu** und erstellen Sie ein neues Notizbuch.
+  
+1. Führen Sie in der ersten Codezelle den folgenden Code aus:
 
-4. Wechseln Sie zu Ihrer Arbeitsbereichsseite, wählen Sie **Compute** und dann Ihren Cluster aus.
+     ```python
+    %fs
+    ls FileStore
+     ``` 
 
-5. Wählen Sie auf der Seite des Clusters **Mehr …** aus und wählen Sie dann **JSON anzeigen** aus. Kopieren Sie die ID des Clusters.
+    In der Ausgabe können Sie überprüfen, ob die Beispieldaten jetzt im Databricks-Dateisystem vorhanden sind und im Arbeitsbereich verwendet werden können.
 
-6. Öffnen Sie in Ihrem Repository die Datei **job-config.json** in Ihrem Repository und ersetzen Sie *your_cluster_id* durch die soeben kopierte Cluster-ID. Ersetzen Sie außerdem */Workspace/Benutzende/Ihr_Benutzername/Ihr_Notebook* durch den Pfad in Ihrem Arbeitsbereich, in dem Sie das in der Pipeline verwendete Notebook speichern möchten. Führen Sie für die Änderungen einen Commit aus.
+## Einrichten von CD-Pipelines
+
+Nachdem Sie den CI-Workflow eingerichtet haben, um das Erfassen von Daten zu automatisieren, erstellen Sie einen zweiten Workflow, um die Datenverarbeitung zu automatisieren. Der CD-Workflow führt ein Notebook als Job Runs aus, dessen Ausgabe auf der Seite **Job Runs** Ihres Azure Databricks-Arbeitsbereichs registriert wird. Das Notizbuch enthält alle Transformationsschritte, die die Daten durchlaufen müssen, bevor sie genutzt werden können.
+
+1. Wechseln Sie zu Ihrer Arbeitsbereichsseite, wählen Sie **Compute** und dann Ihren Cluster aus.
+
+1. Öffnen Sie auf der Seite des Clusters die Optionen links neben der Schaltfläche **Beenden** und wählen Sie dann **JSON anzeigen** aus. Kopieren Sie die ID des Clusters, da sie für die Einrichtung des Job-Laufs im Workflow benötigt wird.
+
+1. Öffnen Sie die **job-config.json** in Ihrem Repository und ersetzen Sie *your_cluster_id* durch die soeben kopierte Cluster-ID. Ersetzen Sie außerdem */Workspace/Benutzende/Ihr_Benutzername/Ihr_Notebook* durch den Pfad in Ihrem Arbeitsbereich, in dem Sie das in der Pipeline verwendete Notebook speichern möchten. Führen Sie für die Änderungen einen Commit aus.
 
     > **Hinweis:** Wenn Sie zur Registerkarte **Aktionen** wechseln, sehen Sie, dass die CI-Pipeline erneut ausgeführt wurde. Da es immer dann ausgelöst werden soll, wenn ein Commit gepusht wird, wird durch Ändern von *job-config.json* die Pipeline wie erwartet bereitgestellt.
 
-7. Erstellen Sie auf der Registerkarte **Aktionen** einen neuen Workflow mit dem Namen **CD_pipeline.yml** und geben Sie den folgenden Code ein:
+1. Erstellen Sie auf der Registerkarte **Aktionen** einen neuen Workflow mit dem Namen **CD_pipeline.yml** und geben Sie den folgenden Code ein:
 
      ```yaml
     name: CD Pipeline for Azure Databricks
@@ -226,24 +224,26 @@ Nachdem Sie nun die erforderlichen Variablen für den Zugriff auf Ihren Azure Da
             ${{ secrets.DATABRICKS_HOST }}
             ${{ secrets.DATABRICKS_TOKEN }}
             EOF
-        - name: Upload Notebook to DBFS
-          run: databricks fs cp sample_sales_notebook.dbc dbfs:/Workspace/Users/your_username/your_notebook --overwrite
+     
+        - name: Import Notebook to Workspace
+          run: databricks workspace import sample_sales_notebook.py /Workspace/Users/your_username/your_notebook -l python --overwrite
+
           env:
             DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
 
         - name: Run Databricks Job
           run: |
             databricks jobs create --json-file job-config.json
-            databricks jobs run-now --job-id $(databricks jobs list | grep 'CD pipeline' | awk '{print $1}')
+            databricks jobs run-now --job-id $(databricks jobs list | grep -m 1 'CD pipeline' | awk '{print $1}')
           env:
             DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
      ```
 
-    Ersetzen Sie vor dem Committen der Änderungen `/path/to/your/notebook` durch den Pfad zum Verzeichnis Ihres Notebooks in Ihrem Repository und `/Workspace/Users/your_username/your_notebook` durch den Dateipfad, in dem das Notebook in Ihrem Azure Databricks-Arbeitsbereich gespeichert werden soll.
+    Bevor Sie die Änderungen übernehmen, ersetzen Sie `/Workspace/Users/your_username/your_notebook` durch den Dateipfad, in den Sie das Notizbuch in Ihrem Azure Databricks-Arbeitsbereich importieren möchten.
 
-8. Führen Sie für die Änderungen einen Commit aus.
+1. Führen Sie für die Änderungen einen Commit aus.
 
-    Dieser Code installiert und konfiguriert die Databricks-Befehlszeilenschnittstelle erneut, importiert das Notebook in Ihr Databricks-Dateisystem und erstellt und führt einen Auftrag aus, den Sie auf der Seite **Workflows** Ihres Arbeitsbereichs überwachen können. Überprüfen Sie die Ausgabe und verifizieren Sie, dass das Datenbeispiel geändert wurde.
+    Mit diesem Code wird Databricks CLI erneut installiert und konfiguriert, das Notebook in Ihren Arbeitsbereich importiert und ein Joblauf erstellt, der es ausführt. Sie können den Fortschritt des Auftrags auf der Seite **Workflows** in Ihrem Arbeitsbereich überwachen. Überprüfen Sie die Ausgabe und stellen Sie sicher, dass die Datenprobe in einen Datenrahmen geladen und für die weitere Analyse modifiziert wurde.
 
 ## Bereinigen
 
