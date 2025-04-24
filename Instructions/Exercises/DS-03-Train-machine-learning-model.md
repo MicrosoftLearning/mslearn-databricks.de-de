@@ -395,7 +395,7 @@ Bisher haben Sie ein Klassifizierungsmodell mit dem logistischen Regressionsalgo
 
     Dieses Mal umfasst die Pipeline dieselben Phasen der Featurevorbereitung wie zuvor, verwendet aber einen *Entscheidungsstruktur*-Algorithmus, um das Modell zu trainieren.
     
-   1. Führen Sie den folgenden Code aus, um die neue Pipeline mit den Testdaten zu verwenden:
+1. Führen Sie den folgenden Code aus, um die neue Pipeline mit den Testdaten zu verwenden:
 
     ```python
    # Get predictions

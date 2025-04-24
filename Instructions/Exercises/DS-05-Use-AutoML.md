@@ -7,7 +7,7 @@ lab:
 
 Automatisiertes maschinelles Lernen ist ein Feature von Azure Databricks, das mehrere Algorithmen und Parameter auf Ihre Daten anwendet, um ein optimales Machine Learning-Modell zu trainieren.
 
-Diese Übung dauert ca. **30** Minuten.
+Diese Übung dauert ca. **45** Minuten.
 
 > **Hinweis**: Die Benutzeroberfläche von Azure Databricks wird kontinuierlich verbessert. Die Benutzeroberfläche kann sich seit der Erstellung der Anweisungen in dieser Übung geändert haben.
 
@@ -81,15 +81,15 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 Um ein Machine Learning-Modell mithilfe von automatisiertem maschinellem Lernen zu trainieren, müssen Sie die Trainingsdaten hochladen. In dieser Übung trainieren Sie ein Modell, um einen Pinguin als eine von drei Arten zu klassifizieren, basierend auf Beobachtungen, einschließlich seines Standorts und seiner Körpermaße. Sie laden Trainingsdaten, die die Artenbezeichnung enthalten, in eine Tabelle in einem Azure Databricks Data Warehouse.
 
 1. Wählen Sie im Azure Databricks-Portal für Ihren Arbeitsbereich in der Randleiste unter **SQL** **SQL-Warehouses** aus.
-1. Beachten Sie, dass der Arbeitsbereich bereits ein SQL Warehouse mit dem Namen **Starter Warehouse** enthält.
+1. Beachten Sie, dass der Arbeitsbereich bereits ein SQL Warehouse namens **Serverless Starter Warehouse** enthält.
 1. Wählen Sie im Menü **Aktionen** (**&#8285;**) für das SQL-Warehouse die Option **Bearbeiten** aus. Legen Sie dann die Eigenschaft **Clustergröße** auf **2X-Klein** fest, und speichern Sie Ihre Änderungen.
 1. Verwenden Sie die Schaltfläche **Start**, um das SQL-Warehouse zu starten (was ein oder zwei Minuten dauern kann).
 
-> **Hinweis**: Wenn Ihr SQL-Warehouse nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Siehe [Erforderliches Azure vCPU-Kontingent](https://docs.microsoft.com/azure/databricks/sql/admin/sql-endpoints#required-azure-vcpu-quota) für Details. In diesem Fall können Sie versuchen, eine Kontingenterhöhung anzufordern, wie in der Fehlermeldung beschrieben wird, die beim Fehlschlagen des Starts des Warehouse angezeigt wird. Alternativ können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
+    > **Hinweis**: Wenn Ihr SQL-Warehouse nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Siehe [Erforderliches Azure vCPU-Kontingent](https://docs.microsoft.com/azure/databricks/sql/admin/sql-endpoints#required-azure-vcpu-quota) für Details. In diesem Fall können Sie versuchen, eine Kontingenterhöhung anzufordern, wie in der Fehlermeldung beschrieben wird, die beim Fehlschlagen des Starts des Warehouse angezeigt wird. Alternativ können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen. Sie können einen Bereich als Parameter für das Setupskript wie folgt angeben: `./mslearn-databricks/setup.ps1 eastus`
 
 1. Laden Sie die Datei [**penguins.csv**](https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv) aus `https://raw.githubusercontent.com/MicrosoftLearning/mslearn-databricks/main/data/penguins.csv` auf Ihren lokalen Computer herunter, und speichern Sie sie als **penguins.csv**.
-1. Wählen Sie zunächst im Azure Databricks-Arbeitsbereichsportal in der Randleiste **(+) Neu** und dann **Dateiupload** aus, und laden Sie die Datei **penguins.csv** hoch, die Sie auf Ihren Computer heruntergeladen haben.
-1. Wählen Sie auf der Seite **Daten hochladen** das **Standardschema** aus, und legen Sie den Tabellennamen auf **penguins** fest. Wählen Sie dann unten links auf der Seite die Option **Tabelle erstellen** aus.
+1. Wählen Sie im Azure Databricks-Arbeitsbereichsportal in der Seitenleiste **(+) Neu** und dann **Daten hinzufügen oder hochladen**. Wählen Sie auf der Seite **Daten hinzufügen** die Option **Tabelle erstellen oder ändern** und laden Sie die Datei **penguins.csv**, die Sie heruntergeladen haben, auf Ihren Computer hoch.
+1. Wählen Sie auf der Seite **Tabelle aus Datei-Upload erstellen oder ändern** das Schema **Standard** aus und legen Sie den Tabellennamen auf **Pinguine** fest. Wählen Sie anschließend **Tabelle erstellen**.
 1. Wenn die Tabelle erstellt wurde, überprüfen Sie die Details.
 
 ## Erstellen eines Experiments für automatisiertes maschinelles Lernen
@@ -97,10 +97,9 @@ Um ein Machine Learning-Modell mithilfe von automatisiertem maschinellem Lernen 
 Nachdem Sie nun über einige Daten verfügen, können Sie sie mit dem automatisierten maschinellen Lernen verwenden, um ein Modell zu trainieren.
 
 1. Wählen Sie in der Randleiste auf der linken Seite **Experimente** aus.
-1. Wählen Sie auf der Seite **Experimente** **Experiment für automatisiertes maschinelles Lernen erstellen** aus.
-1. Konfigurieren Sie das Experiment für automatisiertes maschinelles Lernen mit den folgenden Einstellungen:
+1. Suchen Sie auf der Seite **Experimente** die Kachel **Klassifizierung** und wählen Sie **Training starten**.
+1. Konfigurieren Sie das AutoML-Experiment mit den folgenden Einstellungen:
     - **Cluster**: *Cluster auswählen*
-    - **ML-Problemtyp:** Klassifizierung
     - **Eingabetrainingsdataset**: *Navigieren Sie zur **Standarddatenbank**, und wählen Sie die Tabelle **penguins** aus*
     - **Vorhersageziel**: Art
     - **Experimentname**: Penguin-classification
@@ -112,7 +111,7 @@ Nachdem Sie nun über einige Daten verfügen, können Sie sie mit dem automatisi
         - **Positive Bezeichnung**: *Leer lassen*
         - **Zwischenspeicherort für Daten**: MLflow-Artefakt
 1. Verwenden Sie die Schaltfläche **Automatisiertes maschinelles Lernen starten**, um das Experiment zu starten. Schließen Sie alle angezeigten Informationsdialogfelder.
-1. Warten Sie, bis das Experiment abgeschlossen ist. Sie können die Schaltfläche **Aktualisieren** rechts verwenden, um Details der generierten Ausführungen anzuzeigen.
+1. Warten Sie, bis das Experiment abgeschlossen ist. Sie können Details zu den erzeugten Ausführungen auf der Registerkarte **Ausführungen** einsehen.
 1. Nach fünf Minuten endet das Experiment. Die Aktualisierung der Ausführungen zeigt die Ausführung oben in der Liste an, die zu dem leistungsstärksten Modell geführt hat (basierend auf der Metrik *Genauigkeit*, die Sie ausgewählt haben).
 
 ## Bereitstellen des leistungsstärksten Modells
