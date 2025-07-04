@@ -107,6 +107,26 @@ Um Azure Databricks aus einer Azure Data Factory-Pipeline zu verwenden, müssen 
 1. Wählen Sie **Neues Token generieren** aus, und generieren Sie ein neues Token mit dem Kommentar *Data Factory* und einer leeren Lebensdauer (damit das Token nicht abläuft). Achten Sie darauf, das Token zu **kopieren, wenn es angezeigt wird, <u>bevor</u> Sie *Fertig*** auswählen.
 1. Fügen Sie das kopierte Token in eine Textdatei ein, damit Sie es später in dieser Übung zur Hand haben.
 
+## Verwenden einer Pipeline zum Ausführen des Databricks-Notebooks
+
+Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in einer Pipeline verwenden, um das zuvor angezeigte Notebook auszuführen.
+
+### Erstellen einer Pipeline
+
+1. Wählen Sie in Azure Data Factory Studio im Navigationsbereich die Option **Autor** aus.
+2. Verwenden Sie auf der Seite **Autor** im Bereich **Factory-Ressourcen** das Symbol **+**, um eine **Pipeline** hinzuzufügen.
+3. Ändern Sie im Bereich **Eigenschaften** für die neue Pipeline den Namen in `Process Data with Databricks`. Verwenden Sie dann die Schaltfläche **Eigenschaften** (die **&#128463;<sub>*</sub>** ähnelt) am rechten Ende der Symbolleiste verwenden, um den Bereich **Eigenschaften** auszublenden.
+4. Erweitern Sie im Bereich **Aktivitäten** die Option **Databricks**, und ziehen Sie eine **Notebook**-Aktivität auf die Oberfläche des Pipeline-Designers, wie hier gezeigt:
+5. Wenn die neue **Notebook1**-Aktivität ausgewählt ist, legen Sie die folgenden Eigenschaften im unteren Bereich fest:
+    - **Allgemein**:
+        - **Name**: `Process Data`
+    - **Azure Databricks**:
+        - **Mit Databricks verknüpfter Dienst**: *Wählen Sie den verknüpften Dienst **AzureDatabricks** aus, den Sie zuvor erstellt haben.*
+    - **Einstellungen**:
+        - **Notebook-Pfad**: *Zum Ordner **Users/your_user_name** navigieren und das **Process Data**-Notebook* auswählen
+        - **Basisparameter**: *Hinzufügen eines neuen Parameters namens `folder` mit dem Wert `product_data`*
+6. Verwenden Sie die Schaltfläche **Validieren** oberhalb der Pipeline-Designeroberfläche, um die Pipeline zu validieren. Verwenden Sie dann die Schaltfläche **Alle veröffentlichen**, um sie zu veröffentlichen (speichern).
+
 ### Erstellen eines verknüpften Diensts in Azure Data Factory
 
 1. Kehren Sie zum Azure-Portal zurück und wählen Sie in der Ressourcengruppe **msl-*xxxxxxx*** die Azure Data Factory-Ressource **adf*xxxxxxx*** aus.
@@ -130,26 +150,6 @@ Um Azure Databricks aus einer Azure Data Factory-Pipeline zu verwenden, müssen 
     - **Python-Version**: 3
     - **Workeroptionen**: Behoben
     - **Worker**: 1
-
-## Verwenden einer Pipeline zum Ausführen des Databricks-Notebooks
-
-Nachdem Sie nun einen verknüpften Dienst erstellt haben, können Sie ihn in einer Pipeline verwenden, um das zuvor angezeigte Notebook auszuführen.
-
-### Erstellen einer Pipeline
-
-1. Wählen Sie in Azure Data Factory Studio im Navigationsbereich die Option **Autor** aus.
-2. Verwenden Sie auf der Seite **Autor** im Bereich **Factory-Ressourcen** das Symbol **+**, um eine **Pipeline** hinzuzufügen.
-3. Ändern Sie im Bereich **Eigenschaften** für die neue Pipeline den Namen in `Process Data with Databricks`. Verwenden Sie dann die Schaltfläche **Eigenschaften** (die **&#128463;<sub>*</sub>** ähnelt) am rechten Ende der Symbolleiste verwenden, um den Bereich **Eigenschaften** auszublenden.
-4. Erweitern Sie im Bereich **Aktivitäten** die Option **Databricks**, und ziehen Sie eine **Notebook**-Aktivität auf die Oberfläche des Pipeline-Designers, wie hier gezeigt:
-5. Wenn die neue **Notebook1**-Aktivität ausgewählt ist, legen Sie die folgenden Eigenschaften im unteren Bereich fest:
-    - **Allgemein**:
-        - **Name**: `Process Data`
-    - **Azure Databricks**:
-        - **Mit Databricks verknüpfter Dienst**: *Wählen Sie den verknüpften Dienst **AzureDatabricks** aus, den Sie zuvor erstellt haben.*
-    - **Einstellungen**:
-        - **Notebook-Pfad**: *Zum Ordner **Users/your_user_name** navigieren und das **Process Data**-Notebook* auswählen
-        - **Basisparameter**: *Hinzufügen eines neuen Parameters namens `folder` mit dem Wert `product_data`*
-6. Verwenden Sie die Schaltfläche **Validieren** oberhalb der Pipeline-Designeroberfläche, um die Pipeline zu validieren. Verwenden Sie dann die Schaltfläche **Alle veröffentlichen**, um sie zu veröffentlichen (speichern).
 
 ### Führen Sie die Pipeline aus.
 
