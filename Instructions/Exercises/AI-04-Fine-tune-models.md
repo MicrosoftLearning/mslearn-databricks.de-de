@@ -142,7 +142,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     os.environ["TEMP_AUTH_TOKEN"] = "your_access_token"
      ```
      
-## Validieren der Tokenanzahl
+## Überprüfen der Tokenanzahl
 
 Sowohl `training_set.jsonl` als auch `validation_set.jsonl` bestehen aus verschiedenen Konversationsbeispielen zwischen `user` und `assistant`, die als Datenpunkte für das Training und die Validierung des fein abgestimmten Modells dienen. Einzelne Beispiele müssen unter dem Eingabetokenlimit des `gpt-35-turbo`-Modells von 4.096 Token bleiben.
 
@@ -249,7 +249,7 @@ Nachdem die Feinabstimmungsdateien erfolgreich hochgeladen wurden, können Sie I
     job_id = response.id
      ```
 
-Der Parameter `seed` steuert die Reproduzierbarkeit des Feinabstimmungsauftrags. Die Übergabe der gleichen Seed- und Auftragsparameter sollte zu den gleichen Ergebnissen führen, kann aber in seltenen Fällen abweichen. Wenn kein Startwert angegeben ist, wird automatisch einer generiert.
+Der Parameter `seed` steuert die Reproduzierbarkeit des Feinabstimmungsauftrags. Die Übergabe derselben Seed- und Auftragsparameter sollte zu denselben Ergebnissen führen, kann aber in seltenen Fällen abweichen. Wenn kein Startwert angegeben ist, wird automatisch einer generiert.
 
 2. In einer neuen Zelle können Sie den folgenden Code ausführen, um den Status des Feinabstimmungsauftrags zu überwachen:
 
