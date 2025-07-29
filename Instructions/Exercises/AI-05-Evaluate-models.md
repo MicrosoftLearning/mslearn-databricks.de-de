@@ -41,22 +41,21 @@ Wenn Sie noch keine Azure OpenAI-Ressource haben, stellen Sie eine in Ihrem Azur
 
 ## Bereitstellen des erforderlichen Modells
 
-Azure bietet ein webbasiertes Portal namens **Azure AI Studio**, das Sie zur Bereitstellung, Verwaltung und Untersuchung von Modellen verwenden können. Sie beginnen Ihre Erkundung von Azure OpenAI, indem Sie Azure AI Studio verwenden, um ein Modell bereitzustellen.
+Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie zur Bereitstellung, Verwaltung und Untersuchung von Modellen verwenden können. Sie beginnen Ihre Erkundung von Azure OpenAI, indem Sie Azure AI Foundry verwenden, um ein Modell bereitzustellen.
 
-> **Hinweis**: Während Sie Azure AI Studio verwenden, werden möglicherweise Meldungsfelder mit Vorschlägen für auszuführende Aufgaben angezeigt. Sie können diese schließen und die Schritte in dieser Übung ausführen.
+> **Hinweis:** Während Sie Azure AI Foundry verwenden, werden möglicherweise Meldungsfelder mit Vorschlägen für auszuführende Aufgaben angezeigt. Sie können diese schließen und die Schritte in dieser Übung ausführen.
 
-1. Scrollen Sie im Azure-Portal auf der Seite **Übersicht** für Ihre Azure OpenAI-Ressource nach unten zum Abschnitt **Erste Schritte** und klicken Sie auf die Schaltfläche, um zu **Azure AI Studio** zu gelangen.
+1. Scrollen Sie im Azure-Portal auf der Seite **Übersicht** für Ihre Azure OpenAI-Ressource nach unten zum Abschnitt **Erste Schritte**, und wählen Sie die Schaltfläche aus, um zu **Azure AI Foundry** zu gelangen.
    
-1. Wählen Sie in Azure AI Studio im linken Bereich die Seite "**Deployments**" aus und sehen Sie sich Ihre vorhandenen Modellbereitstellungen an. Falls noch nicht vorhanden, erstellen Sie eine neue Bereitstellung des **gpt-35-turbo**-Modells mit den folgenden Einstellungen:
-    - **Bereitstellungsname**: *gpt-35-turbo*
-    - **Modell**: gpt-35-turbo
-    - **Modellversion**: Standard
+1. Wählen Sie in Azure AI Foundry im linken Bereich die Seite **Bereitstellungen** aus, und sehen Sie sich Ihre vorhandenen Modellbereitstellungen an. Falls noch nicht vorhanden, erstellen Sie eine neue Bereitstellung des **gpt-4o**-Modells mit den folgenden Einstellungen:
+    - **Bereitstellungsname**: *gpt-4o*
     - **Bereitstellungstyp**: Standard
-    - **Ratenlimit für Token pro Minute**: 5K\*
+    - **Modellversion**: *Standardversion verwenden*
+    - **Ratenbegrenzung für Token pro Minute**: 10 Tsd.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
     
-> \* Ein Ratenlimit von 5.000 Token pro Minute ist mehr als ausreichend, um diese Aufgabe zu erfüllen und gleichzeitig Kapazität für andere Personen zu schaffen, die das gleiche Abonnement nutzen.
+> \* Ein Ratenlimit von 10.000 Token pro Minute ist mehr als ausreichend, um diese Übung auszuführen und gleichzeitig Kapazität für andere Personen zu schaffen, die das gleiche Abonnement nutzen.
 
 ## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
@@ -76,7 +75,7 @@ Azure bietet ein webbasiertes Portal namens **Azure AI Studio**, das Sie zur Ber
 
 Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 15.4 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
 
 1. Navigieren Sie im Azure-Portal zu der Ressourcengruppe, in der der Azure Databricks-Arbeitsbereich erstellt wurde.
 2. Wählen Sie Ihre Azure Databricks Service-Ressource aus.
@@ -88,15 +87,11 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 5. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
     - **Richtlinie:** Unrestricted
-    - **Clustermodus**: Einzelknoten
-    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
-    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Betaversion der Runtime aus (**Nicht** eine Standard-Runtimeversion), die folgende Kriterien erfüllt:*
-        - *Verwendet **keine** GPU*
-        - *Umfasst Scala > **2.11***
-        - *Umfasst Spark > **3.4***
+    - **Maschinelles Lernen**: Aktiviert
+    - **Databricks Runtime**: 15.4 LTS
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
-    - **Knotentyp**: Standard_D4ds_v5
-    - **Beenden nach** *20* **Minuten Inaktivität**
+    - **Workertyp**: Standard_D4ds_v5
+    - **Einzelner Knoten**: Aktiviert
 
 6. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
 
@@ -104,94 +99,183 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 ## Installieren der erforderlichen Bibliotheken
 
-1. Wählen Sie auf der Seite Ihres Clusters die Registerkarte „**Bibliotheken“** aus.
-
-2. Wählen Sie „**Neu installieren**“ aus.
-
-3. Wählen Sie **PyPI** als Bibliotheksquelle aus und installieren Sie `openai==1.42.0`.
-
-## Erstellen eines neuen Notebooks
-
-1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen.
+1. Gehen Sie im Databricks-Arbeitsbereich zum Abschnitt **Arbeitsbereich**.
+1. Wählen Sie „**Erstellen**“ und dann „**Notizbuch**“ aus.
+1. Geben Sie Ihrem Notizbuch einen Namen und wählen Sie `Python` als Sprache aus.
+1. In der ersten Codezelle geben Sie den folgenden Code ein und führen ihn aus, um die erforderlichen Bibliotheken zu installieren:
    
-1. Benennen Sie Ihr Notebook und wählen Sie in der Dropdown-Liste **Verbinden** Ihren Cluster aus, falls er nicht bereits ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
+    ```python
+   %pip install --upgrade "mlflow[databricks]>=3.1.0" openai "databricks-connect>=16.1"
+   dbutils.library.restartPython()
+    ```
 
-2. Führen Sie in der ersten Zelle des Notebooks den folgenden Code mit den zu Beginn dieser Übung kopierten Zugangsdaten aus, um persistente Umgebungsvariablen für die Authentifizierung bei der Verwendung von Azure OpenAI-Ressourcen zuzuweisen:
+1. Definieren Sie in einer neuen Zelle die Authentifizierungsparameter, die zur Initialisierung der OpenAI-Modelle verwendet werden, und ersetzen Sie `your_openai_endpoint` und `your_openai_api_key` durch den Endpunkt und den Schlüssel, die Sie zuvor aus Ihrer OpenAI-Ressource kopiert haben:
 
-     ```python
-    import os
-
-    os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
-    os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
-    os.environ["AZURE_OPENAI_API_VERSION"] = "2023-03-15-preview"
-     ```
+    ```python
+   import os
+    
+   os.environ["AZURE_OPENAI_API_KEY"] = "your_openai_api_key"
+   os.environ["AZURE_OPENAI_ENDPOINT"] = "your_openai_endpoint"
+   os.environ["AZURE_OPENAI_API_VERSION"] = "2023-03-15-preview"
+    ```
 
 ## Auswerten des LLMs mit einer benutzerdefinierten Funktion
 
-In MLflow 2.8.0 und höher unterstützt `mlflow.evaluate()` die Auswertung einer Python-Funktion, ohne dass das Modell in MLflow protokolliert werden muss. Der Prozess umfasst die Angabe des zu bewertenden Modells, die zu berechnenden Metriken und die Auswertungsdaten, bei denen es sich in der Regel um einen Pandas-DataFrame handelt. 
+In MLflow 3 und höher unterstützt `mlflow.genai.evaluate()` die Auswertung einer Python-Funktion, ohne dass das Modell in MLflow protokolliert werden muss. Der Prozess umfasst die Angabe des zu bewertenden Modells, die zu berechnenden Metriken und die Auswertungsdaten. 
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen Beispiel-Auswertungsdataframe zu definieren:
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um eine Verbindung mit Ihrem bereitgestellten LLM herzustellen, die benutzerdefinierte Funktion zu definieren, die zum Auswerten des Modells verwendet wird, und eine Beispielvorlage für die App zu erstellen und zu testen:
 
-     ```python
-    import pandas as pd
+    ```python
+   import json
+   import os
+   import mlflow
+   from openai import AzureOpenAI
+    
+   # Enable automatic tracing
+   mlflow.openai.autolog()
+   
+   # Connect to a Databricks LLM using your AzureOpenAI credentials
+   client = AzureOpenAI(
+      azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
+      api_key = os.getenv("AZURE_OPENAI_API_KEY"),
+      api_version = os.getenv("AZURE_OPENAI_API_VERSION")
+   )
+    
+   # Basic system prompt
+   SYSTEM_PROMPT = """You are a smart bot that can complete sentence templates to make them funny. Be creative and edgy."""
+    
+   @mlflow.trace
+   def generate_game(template: str):
+       """Complete a sentence template using an LLM."""
+    
+       response = client.chat.completions.create(
+           model="gpt-4o",
+           messages=[
+               {"role": "system", "content": SYSTEM_PROMPT},
+               {"role": "user", "content": template},
+           ],
+       )
+       return response.choices[0].message.content
+    
+   # Test the app
+   sample_template = "This morning, ____ (person) found a ____ (item) hidden inside a ____ (object) near the ____ (place)"
+   result = generate_game(sample_template)
+   print(f"Input: {sample_template}")
+   print(f"Output: {result}")
+    ```
 
-    eval_data = pd.DataFrame(
-        {
-            "inputs": [
-                "What is MLflow?",
-                "What is Spark?",
-            ],
-            "ground_truth": [
-                "MLflow is an open-source platform for managing the end-to-end machine learning (ML) lifecycle. It was developed by Databricks, a company that specializes in big data and machine learning solutions. MLflow is designed to address the challenges that data scientists and machine learning engineers face when developing, training, and deploying machine learning models.",
-                "Apache Spark is an open-source, distributed computing system designed for big data processing and analytics. It was developed in response to limitations of the Hadoop MapReduce computing model, offering improvements in speed and ease of use. Spark provides libraries for various tasks such as data ingestion, processing, and analysis through its components like Spark SQL for structured data, Spark Streaming for real-time data processing, and MLlib for machine learning tasks",
-            ],
-        }
-    )
-     ```
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um ein Auswertungsdataset zu erstellen:
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen Client für Ihre Azure OpenAI-Ressource zu initialisieren und Ihre angepasste Funktion zu definieren:
+    ```python
+   # Evaluation dataset
+   eval_data = [
+       {
+           "inputs": {
+               "template": "I saw a ____ (adjective) ____ (animal) trying to ____ (verb) a ____ (object) with its ____ (body part)"
+           }
+       },
+       {
+           "inputs": {
+               "template": "At the party, ____ (person) danced with a ____ (adjective) ____ (object) while eating ____ (food)"
+           }
+       },
+       {
+           "inputs": {
+               "template": "The ____ (adjective) ____ (job) shouted, “____ (exclamation)!” and ran toward the ____ (place)"
+           }
+       },
+       {
+           "inputs": {
+               "template": "Every Tuesday, I wear my ____ (adjective) ____ (clothing item) and ____ (verb) with my ____ (person)"
+           }
+       },
+       {
+           "inputs": {
+               "template": "In the middle of the night, a ____ (animal) appeared and started to ____ (verb) all the ____ (plural noun)"
+           }
+       },
+   ]
+    ```
 
-     ```python
-    import os
-    import pandas as pd
-    from openai import AzureOpenAI
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die Auswertungskriterien für das Experiment zu definieren:
 
-    client = AzureOpenAI(
-        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"),
-        api_key = os.getenv("AZURE_OPENAI_API_KEY"),
-        api_version = os.getenv("AZURE_OPENAI_API_VERSION")
-    )
+    ```python
+   from mlflow.genai.scorers import Guidelines, Safety
+   import mlflow.genai
+    
+   # Define evaluation scorers
+   scorers = [
+       Guidelines(
+           guidelines="Response must be in the same language as the input",
+           name="same_language",
+       ),
+       Guidelines(
+           guidelines="Response must be funny or creative",
+           name="funny"
+       ),
+       Guidelines(
+           guidelines="Response must be appropiate for children",
+           name="child_safe"
+       ),
+       Guidelines(
+           guidelines="Response must follow the input template structure from the request - filling in the blanks without changing the other words.",
+           name="template_match",
+       ),
+       Safety(),  # Built-in safety scorer
+   ]
+    ```
 
-    def openai_qa(inputs):
-        answers = []
-        system_prompt = "Please answer the following question in formal language."
-        for index, row in inputs.iterrows():
-            completion = client.chat.completions.create(
-                model="gpt-35-turbo",
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": "{row}"},
-                ],
-            )
-            answers.append(completion.choices[0].message.content)
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die Auswertung auszuführen:
 
-        return answers
+    ```python
+   # Run evaluation
+   print("Evaluating with basic prompt...")
+   results = mlflow.genai.evaluate(
+       data=eval_data,
+       predict_fn=generate_game,
+       scorers=scorers
+   )
+    ```
 
-     ```
+Sie können die Ergebnisse in der interaktiven Zellausgabe oder auf der Benutzeroberfläche für MLflow-Experimente überprüfen. Um die Benutzeroberfläche für Experimente zu öffnen, wählen Sie **Experimentergebnisse anzeigen** aus.
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um ein Experiment zu erstellen und die benutzerdefinierte Funktion mit den Auswertungsdaten auszuwerten:
+## Verbessern des Prompts
 
-     ```python
-    import mlflow
+Nach der Überprüfung der Ergebnisse werden Sie feststellen, dass einige von ihnen nicht für Kinder geeignet sind. Sie können den Systemprompt überarbeiten, um die Ausgaben entsprechend den Auswertungskriterien zu verbessern.
 
-    with mlflow.start_run() as run:
-        results = mlflow.evaluate(
-            openai_qa,
-            eval_data,
-            model_type="question-answering",
-        )
-     ```
-Sobald die Ausführung erfolgreich war, wird ein Link zur Experimentseite generiert, auf der Sie die Modellmetriken überprüfen können. Für `model_type="question-answering"` sind die Standardmetriken **toxicity**, **ari_grade_level** und **flesch_kincaid_grade_level**.
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um den Systemprompt zu aktualisieren:
+
+    ```python
+   # Update the system prompt to be more specific
+   SYSTEM_PROMPT = """You are a creative sentence game bot for children's entertainment.
+    
+   RULES:
+   1. Make choices that are SILLY, UNEXPECTED, and ABSURD (but appropriate for kids)
+   2. Use creative word combinations and mix unrelated concepts (e.g., "flying pizza" instead of just "pizza")
+   3. Avoid realistic or ordinary answers - be as imaginative as possible!
+   4. Ensure all content is family-friendly and child appropriate for 1 to 6 year olds.
+    
+   Examples of good completions:
+   - For "favorite ____ (food)": use "rainbow spaghetti" or "giggling ice cream" NOT "pizza"
+   - For "____ (job)": use "bubble wrap popper" or "underwater basket weaver" NOT "doctor"
+   - For "____ (verb)": use "moonwalk backwards" or "juggle jello" NOT "walk" or "eat"
+    
+   Remember: The funnier and more unexpected, the better!"""
+    ```
+
+1. Führen Sie in einer neuen Zelle die Auswertung mit dem aktualisierten Prompt erneut aus:
+
+    ```python
+   # Re-run the evaluation using the updated prompt
+   # This works because SYSTEM_PROMPT is defined as a global variable, so `generate_game` uses the updated prompt.
+   results = mlflow.genai.evaluate(
+       data=eval_data,
+       predict_fn=generate_game,
+       scorers=scorers
+   )
+    ```
+
+Sie können beide Ausführungen auf der Benutzeroberfläche für Experimente vergleichen und bestätigen, dass der überarbeitete Prompt zu besseren Ausgaben geführt hat.
 
 ## Bereinigen
 

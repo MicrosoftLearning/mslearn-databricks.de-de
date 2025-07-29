@@ -41,22 +41,21 @@ Wenn Sie noch keine Azure OpenAI-Ressource haben, stellen Sie eine in Ihrem Azur
 
 ## Bereitstellen des erforderlichen Modells
 
-Azure bietet ein webbasiertes Portal namens **Azure AI Studio**, das Sie zur Bereitstellung, Verwaltung und Untersuchung von Modellen verwenden können. Sie beginnen Ihre Erkundung von Azure OpenAI, indem Sie Azure AI Studio verwenden, um ein Modell bereitzustellen.
+Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie zur Bereitstellung, Verwaltung und Untersuchung von Modellen verwenden können. Sie beginnen Ihre Erkundung von Azure OpenAI, indem Sie Azure AI Foundry verwenden, um ein Modell bereitzustellen.
 
-> **Hinweis**: Während Sie Azure AI Studio verwenden, werden möglicherweise Meldungsfelder mit Vorschlägen für auszuführende Aufgaben angezeigt. Sie können diese schließen und die Schritte in dieser Übung ausführen.
+> **Hinweis:** Während Sie Azure AI Foundry verwenden, werden möglicherweise Meldungsfelder mit Vorschlägen für auszuführende Aufgaben angezeigt. Sie können diese schließen und die Schritte in dieser Übung ausführen.
 
-1. Scrollen Sie im Azure-Portal auf der Seite **Übersicht** für Ihre Azure OpenAI-Ressource nach unten zum Abschnitt **Erste Schritte** und klicken Sie auf die Schaltfläche, um zu **Azure AI Studio** zu gelangen.
+1. Scrollen Sie im Azure-Portal auf der Seite **Übersicht** für Ihre Azure OpenAI-Ressource nach unten zum Abschnitt **Erste Schritte**, und wählen Sie die Schaltfläche aus, um zu **Azure AI Foundry** zu gelangen.
    
-1. Wählen Sie in Azure AI Studio im linken Bereich die Seite "**Deployments**" aus und sehen Sie sich Ihre vorhandenen Modellbereitstellungen an. Falls noch nicht vorhanden, erstellen Sie eine neue Bereitstellung des **gpt-35-turbo**-Modells mit den folgenden Einstellungen:
-    - **Bereitstellungsname**: *gpt-35-turbo*
-    - **Modell**: gpt-35-turbo
-    - **Modellversion**: Standard
+1. Wählen Sie in Azure AI Foundry im linken Bereich die Seite **Bereitstellungen** aus, und sehen Sie sich Ihre vorhandenen Modellbereitstellungen an. Falls noch nicht vorhanden, erstellen Sie eine neue Bereitstellung des **gpt-4o**-Modells mit den folgenden Einstellungen:
+    - **Bereitstellungsname**: *gpt-4o*
     - **Bereitstellungstyp**: Standard
-    - **Ratenlimit für Token pro Minute**: 5K\*
+    - **Modellversion**: *Standardversion verwenden*
+    - **Ratenbegrenzung für Token pro Minute**: 10 Tsd.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
     
-> \* Ein Ratenlimit von 5.000 Token pro Minute ist mehr als ausreichend, um diese Aufgabe zu erfüllen und gleichzeitig Kapazität für andere Personen zu schaffen, die das gleiche Abonnement nutzen.
+> \* Ein Ratenlimit von 10.000 Token pro Minute ist mehr als ausreichend, um diese Übung auszuführen und gleichzeitig Kapazität für andere Personen zu schaffen, die das gleiche Abonnement nutzen.
 
 ## Bereitstellen eines Azure Databricks-Arbeitsbereichs
 
@@ -76,7 +75,7 @@ Azure bietet ein webbasiertes Portal namens **Azure AI Studio**, das Sie zur Ber
 
 Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-> **Tipp**: Wenn Sie bereits über einen Cluster mit einer Runtime 13.3 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 15.4 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
 
 1. Navigieren Sie im Azure-Portal zu der Ressourcengruppe, in der der Azure Databricks-Arbeitsbereich erstellt wurde.
 2. Wählen Sie Ihre Azure Databricks Service-Ressource aus.
@@ -88,27 +87,15 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 5. Erstellen Sie auf der Seite **Neuer Cluster** einen neuen Cluster mit den folgenden Einstellungen:
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
     - **Richtlinie:** Unrestricted
-    - **Clustermodus**: Einzelknoten
-    - **Zugriffsmodus**: Einzelner Benutzer (*Ihr Benutzerkonto ist ausgewählt*)
-    - **Databricks-Runtimeversion**: *Wählen Sie die **<u>ML</u>**-Edition der neuesten Nicht-Betaversion der Runtime aus (**Nicht** eine Standard-Runtimeversion), die folgende Kriterien erfüllt:*
-        - *Verwendet **keine** GPU*
-        - *Umfasst Scala > **2.11***
-        - *Umfasst Spark > **3.4***
+    - **Maschinelles Lernen**: Aktiviert
+    - **Databricks Runtime**: 15.4 LTS
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
-    - **Knotentyp**: Standard_D4ds_v5
-    - **Beenden nach** *20* **Minuten Inaktivität**
+    - **Workertyp**: Standard_D4ds_v5
+    - **Einzelner Knoten**: Aktiviert
 
 6. Warten Sie, bis der Cluster erstellt wurde. Es kann ein oder zwei Minuten dauern.
 
 > **Hinweis**: Wenn Ihr Cluster nicht gestartet werden kann, verfügt Ihr Abonnement möglicherweise über ein unzureichendes Kontingent in der Region, in der Ihr Azure Databricks-Arbeitsbereich bereitgestellt wird. Details finden Sie unter [Der Grenzwert für CPU-Kerne verhindert die Clustererstellung](https://docs.microsoft.com/azure/databricks/kb/clusters/azure-core-limit). In diesem Fall können Sie versuchen, Ihren Arbeitsbereich zu löschen und in einer anderen Region einen neuen zu erstellen.
-
-## Installieren der erforderlichen Bibliotheken
-
-1. Wählen Sie auf der Seite Ihres Clusters die Registerkarte „**Bibliotheken“** aus.
-
-2. Wählen Sie „**Neu installieren**“ aus.
-
-3. Wählen Sie **PyPI** als Bibliotheksquelle aus und installieren Sie `openai==1.42.0`.
 
 ## Erstellen eines neuen Notebooks
 
@@ -169,7 +156,7 @@ Verantwortungsvolle KI bezieht sich auf die ethische und nachhaltige Entwicklung
 
     for row in neutral_input:
         completion = client.chat.completions.create(
-            model="gpt-35-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": row},
@@ -180,7 +167,7 @@ Verantwortungsvolle KI bezieht sich auf die ethische und nachhaltige Entwicklung
 
     for row in loaded_input:
         completion = client.chat.completions.create(
-            model="gpt-35-turbo",
+            model="gpt-4o",
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": row},
