@@ -118,7 +118,7 @@ Nachdem Sie nun über einige Daten verfügen, können Sie sie mit dem automatisi
 
 Nachdem Sie ein Experiment für automatisiertes maschinelles Lernen ausgeführt haben, können Sie das leistungsstärkste Modell untersuchen, das generiert wurde.
 
-1. Wählen Sie auf der Experimentseite **Penguin-classification** die Option **Notebook für bestes Modell anzeigen ** aus, um das Notebook zu öffnen, das zum Trainieren des Modells auf einer neuen Browserregisterkarte verwendet wird.
+1. Wählen Sie auf der Experimentseite **Penguin-classification** die Option **Notebook für bestes Modell anzeigen ** aus, um das Notebook, das zum Trainieren des Modells verwendet wird, auf einer neuen Browserregisterkarte zu öffnen.
 1. Scrollen Sie durch die Zellen im Notebook, und notieren Sie den Code, der zum Trainieren des Modells verwendet wurde.
 1. Schließen Sie die Browserregisterkarte, die das Notebook enthält, um zur Experimentseite **Penguin-classification** zurückzukehren.
 1. Wählen Sie in der Liste der Ausführungen den Namen der ersten Ausführung aus (die das beste Modell erzeugt hat), um sie zu öffnen.
