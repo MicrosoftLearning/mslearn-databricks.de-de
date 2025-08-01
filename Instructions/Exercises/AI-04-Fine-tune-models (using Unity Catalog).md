@@ -55,7 +55,7 @@ Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie
     - **Bereitstellungsname**: *gpt-4o*
     - **Bereitstellungstyp**: Standard
     - **Modellversion**: *Standardversion verwenden*
-    - **Ratenbegrenzung für Token pro Minute**: 10 Tsd.\*
+    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
     
@@ -79,7 +79,7 @@ Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie
 
 Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 15.4 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 16.4 LTS **<u>ML</u>** oder höher in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und diesen Prozess überspringen.
 
 1. Navigieren Sie im Azure-Portal zu der Ressourcengruppe, in der der Azure Databricks-Arbeitsbereich erstellt wurde.
 2. Wählen Sie Ihre Azure Databricks Service-Ressource aus.
@@ -92,7 +92,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
     - **Richtlinie:** Unrestricted
     - **Maschinelles Lernen**: Aktiviert
-    - **Databricks Runtime**: 15.4 LTS
+    - **Databricks Runtime**: 16.4 LTS
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
     - **Workertyp**: Standard_D4ds_v5
     - **Einzelner Knoten**: Aktiviert

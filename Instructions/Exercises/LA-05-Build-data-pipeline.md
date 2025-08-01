@@ -159,7 +159,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 1. Nachdem die Pipeline erfolgreich ausgeführt wurde, navigieren Sie zurück zum Notebook*Erstellen einer Pipeline mit Delta Live-Tabellen*, das Sie zuerst erstellt haben, und führen Sie den folgenden Code in einer neuen Zelle aus, um zu überprüfen, ob die Dateien für alle drei neuen Tabellen am angegebenen Speicherort erstellt wurden:
 
      ```python
-    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/tables"))
+    display(dbutils.fs.ls("dbfs:/pipelines/delta_lab/schemas/default/tables"))
      ```
 
 1. Fügen Sie eine weitere Codezelle hinzu, und führen Sie den folgenden Code aus, um zu überprüfen, ob die Tabellen in der **Standard**-Datenbank erstellt wurden:
