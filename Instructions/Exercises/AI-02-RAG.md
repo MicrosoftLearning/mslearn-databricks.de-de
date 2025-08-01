@@ -75,37 +75,22 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 
 ## Installieren der erforderlichen Bibliotheken
 
-1. Wählen Sie auf der Seite Ihres Clusters die Registerkarte „**Bibliotheken“** aus.
-
-2. Wählen Sie „**Neu installieren**“ aus.
-
-3. Wählen Sie **PyPI** als Bibliotheksquelle aus und geben Sie `transformers==4.53.0` in das Feld **Paket** ein.
-
-4. Wählen Sie **Installieren** aus.
-
-5. Wiederholen Sie die obigen Schritte, um `databricks-vectorsearch==0.56` ebenfalls zu installieren.
-   
-## Erstellen eines Notebook und Erfassen von Daten
-
 1. Verwenden Sie in der Randleiste den Link ** (+) Neu**, um ein **Notebook** zu erstellen. Wählen Sie in der Dropdownliste **Verbinden** Ihren Cluster aus, wenn er noch nicht ausgewählt ist. Wenn der Cluster nicht ausgeführt wird, kann es eine Minute dauern, bis er gestartet wird.
-
-1. Geben Sie in der ersten Zelle des Notebook die folgende SQL-Abfrage ein, um ein neues Volume zu erstellen, mit dem die Daten dieser Übung in Ihrem Standardkatalog gespeichert werden:
-
+1. In der ersten Codezelle geben Sie den folgenden Code ein und führen ihn aus, um die erforderlichen Bibliotheken zu installieren:
+   
     ```python
-   %sql 
-   CREATE VOLUME <catalog_name>.default.RAG_lab;
+   %pip install faiss-cpu
+   dbutils.library.restartPython()
     ```
+   
+## Erfassen von Daten
 
-1. Ersetzen Sie `<catalog_name>` durch den Namen Ihres Arbeitsbereichs, da Azure Databricks automatisch einen Standardkatalog mit diesem Namen erstellt.
-1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, der einen *Shellbefehl* verwendet, um Daten aus GitHub in Ihren Unity-Katalog herunterzuladen.
-
-    ```python
-   %sh
-   wget -O /Volumes/<catalog_name>/default/RAG_lab/enwiki-latest-pages-articles.xml https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/enwiki-latest-pages-articles.xml
-    ```
-
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen Dataframe aus den Rohdaten zu erstellen:
+1. Laden Sie auf einer neuen Browserregisterkarte die [Beispieldatei](https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/enwiki-latest-pages-articles.xml) herunter, die in dieser Übung als Datenquelle verwendet wird: `https://github.com/MicrosoftLearning/mslearn-databricks/raw/main/data/enwiki-latest-pages-articles.xml`.
+1. Wählen Sie auf der Registerkarte „Databricks-Arbeitsbereich“ bei geöffnetem Notebook den **Katalog-Explorer (STRG+ALT+C)** aus, und wählen Sie das ➕-Symbol zum **Hinzufügen von Daten** aus.
+1. Wählen Sie auf der Seite **Daten hinzufügen** **Dateien in DBFS hochladen** aus.
+1. Benennen Sie auf der Seite **DBFS** das Zielverzeichnis `RAG_lab`, und laden Sie die zuvor gespeicherte XML-Datei hoch.
+1. Wählen Sie in der Randleiste **Arbeitsbereich** aus, und öffnen Sie Ihr Notebook erneut.
+1. Führen Sie in einer neuen Codezelle den folgenden Code aus, um einen Dataframe aus den Rohdaten zu erstellen:
 
     ```python
    from pyspark.sql import SparkSession
@@ -118,7 +103,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
    # Read the XML file
    raw_df = spark.read.format("xml") \
        .option("rowTag", "page") \
-       .load("/Volumes/<catalog_name>/default/RAG_lab/enwiki-latest-pages-articles.xml")
+       .load("/FileStore/tables/RAG_lab/enwiki_latest_pages_articles.xml")
 
    # Show the DataFrame
    raw_df.show(5)
@@ -127,67 +112,61 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
    raw_df.printSchema()
     ```
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, und ersetzen Sie `<catalog_name>` durch den Namen Ihres Unity-Katalogs, um die Daten zu bereinigen und vorzuverarbeiten und die relevanten Textfelder zu extrahieren:
+1. Verwenden Sie Menüoption **&#9656; Zelle Ausführen** links neben der Zelle, um sie auszuführen. Warten Sie dann, bis der vom Code ausgeführte Spark-Auftrag, abgeschlossen ist.
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die Daten zu bereinigen und vorzuverarbeiten und die relevanten Textfelder zu extrahieren:
 
     ```python
    from pyspark.sql.functions import col
 
    clean_df = raw_df.select(col("title"), col("revision.text._VALUE").alias("text"))
    clean_df = clean_df.na.drop()
-   clean_df.write.format("delta").mode("overwrite").saveAsTable("<catalog_name>.default.wiki_pages")
    clean_df.show(5)
     ```
 
-    Wenn Sie den **Katalog (CTRL + Alt + C)**-Explorer öffnen und dessen Fenster aktualisieren, sehen Sie die Delta-Tabelle, die in Ihrem Standard-Unity-Katalog erstellt wurde.
-
 ## Einbettungen generieren und Vektorsuche implementieren
 
-Databricks' Mosaic AI Vector Search ist eine in die Azure Databricks Platform integrierte Vektordatenbanklösung. Es optimiert die Speicherung und den Abruf von Einbettungen unter Verwendung des Hierarchical Navigable Small World (HNSW)-Algorithmus. Sie ermöglicht eine effiziente Suche nach den nächsten Nachbarn, und ihre hybride Suchfunktion für Schlüsselwortähnlichkeit stellt durch die Kombination von vektorbasierten und schlagwortbasierten Suchtechniken relevantere Ergebnisse bereit.
+FAISS (Facebook AI Similarity Search) ist eine Open-Source-Vektordatenbankbibliothek, die von Meta AI entwickelt wurde und für eine effiziente Ähnlichkeitssuche und Clustering von dichten Vektoren entwickelt wurde. FAISS ermöglicht schnelle und skalierbare Nearest-Neighbor-Suchvorgänge und kann in hybride Suchsysteme integriert werden, um vektorbasierte Ähnlichkeit mit herkömmlichen schlüsselwortbasierten Methoden zu kombinieren und so die Relevanz von Suchergebnissen zu verbessern.
 
-1. Führen Sie in einer neuen Zelle die folgende SQL-Abfrage aus, um die Funktion „Änderungsdatenfeed“ in der Quelltabelle zu aktivieren, bevor Sie einen Delta-Sync-Index erstellen.
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um das vortrainierte `all-MiniLM-L6-v2`-Modell zu laden und Text in Einbettungen zu konvertieren:
 
     ```python
-   %sql
-   ALTER TABLE <catalog_name>.default.wiki_pages SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
+   from sentence_transformers import SentenceTransformer
+   import numpy as np
+    
+   # Load pre-trained model
+   model = SentenceTransformer('all-MiniLM-L6-v2')
+    
+   # Function to convert text to embeddings
+   def text_to_embedding(text):
+       embeddings = model.encode([text])
+       return embeddings[0]
+    
+   # Convert the DataFrame to a Pandas DataFrame
+   pandas_df = clean_df.toPandas()
+    
+   # Apply the function to get embeddings
+   pandas_df['embedding'] = pandas_df['text'].apply(text_to_embedding)
+   embeddings = np.vstack(pandas_df['embedding'].values)
     ```
 
-2. Führen Sie den folgenden Code in einer neuen Zelle aus, um den Index für die Vektorsuche zu erstellen.
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um den FAISS-Index zu erstellen und abzufragen:
 
     ```python
-   from databricks.vector_search.client import VectorSearchClient
-
-   client = VectorSearchClient()
-
-   client.create_endpoint(
-       name="vector_search_endpoint",
-       endpoint_type="STANDARD"
-   )
-
-   index = client.create_delta_sync_index(
-     endpoint_name="vector_search_endpoint",
-     source_table_name="<catalog_name>.default.wiki_pages",
-     index_name="<catalog_name>.default.wiki_index",
-     pipeline_type="TRIGGERED",
-     primary_key="title",
-     embedding_source_column="text",
-     embedding_model_endpoint_name="databricks-gte-large-en"
-    )
-    ```
-     
-Wenn Sie den **Katalog (CTRL + Alt + C)**-Explorer öffnen und den Bereich aktualisieren, sehen Sie den Index, der in Ihrem Standard-Unity-Katalog erstellt wurde.
-
-> **Hinweis:** Stellen Sie vor dem Ausführen der nächsten Codezelle sicher, dass der Index erfolgreich erstellt wurde. Klicken Sie dazu mit der rechten Maustaste auf den Index im Katalogbereich und wählen Sie **Im Katalog-Explorer öffnen**. Warten Sie, bis der Indexstatus **Online** lautet.
-
-3. Führen Sie in einer neuen Zelle den folgenden Code aus, um auf der Grundlage eines Abfragevektors nach relevanten Dokumenten zu suchen.
-
-    ```python
-   results_dict=index.similarity_search(
-       query_text="Anthropology fields",
-       columns=["title", "text"],
-       num_results=1
-   )
-
-   display(results_dict)
+   import faiss
+    
+   # Create a FAISS index
+   d = embeddings.shape[1]  # dimension
+   index = faiss.IndexFlatL2(d)  # L2 distance
+   index.add(embeddings)  # add vectors to the index
+    
+   # Perform a search
+   query_embedding = text_to_embedding("Anthropology fields")
+   k = 1  # number of nearest neighbors
+   distances, indices = index.search(np.array([query_embedding]), k)
+    
+   # Get the results
+   results = pandas_df.iloc[indices[0]]
+   display(results)
     ```
 
 Überprüfen Sie, ob die Ausgabe die entsprechende Wiki-Seite für die Eingabeaufforderung findet.
@@ -199,29 +178,26 @@ Jetzt können wir die Kapazitäten von großen Sprachmodellen verbessern, indem 
 1. Führen Sie in einer neuen Zelle den folgenden Code aus, um die abgerufenen Daten mit der Abfrage des Benutzers zu kombinieren und eine umfangreiche Eingabeaufforderung für den LLM zu erstellen.
 
     ```python
-   # Convert the dictionary to a DataFrame
-   results = spark.createDataFrame([results_dict['result']['data_array'][0]])
-
    from transformers import pipeline
-
+    
    # Load the summarization model
    summarizer = pipeline("summarization", model="facebook/bart-large-cnn", framework="pt")
-
+    
    # Extract the string values from the DataFrame column
-   text_data = results.select("_2").rdd.flatMap(lambda x: x).collect()
-
+   text_data = results["text"].tolist()
+    
    # Pass the extracted text data to the summarizer function
    summary = summarizer(text_data, max_length=512, min_length=100, do_sample=True)
-
+    
    def augment_prompt(query_text):
        context = " ".join([item['summary_text'] for item in summary])
-       return f"Query: {query_text}\nContext: {context}"
-
+       return f"{context}\n\nQuestion: {query_text}\nAnswer:"
+    
    prompt = augment_prompt("Explain the significance of Anthropology")
    print(prompt)
     ```
 
-3. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen LLM zur Generierung von Antworten zu verwenden.
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um einen LLM zur Generierung von Antworten zu verwenden.
 
     ```python
    from transformers import GPT2LMHeadModel, GPT2Tokenizer
