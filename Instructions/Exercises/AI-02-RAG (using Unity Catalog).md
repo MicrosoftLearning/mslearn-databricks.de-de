@@ -51,7 +51,7 @@ Diese Übung enthält ein Skript zum Bereitstellen eines neuen Azure Databricks-
 
 Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cluster* verwendet, um Daten parallel auf mehreren Knoten zu verarbeiten. Jeder Cluster besteht aus einem Treiberknoten, um die Arbeit zu koordinieren, und Arbeitsknoten zum Ausführen von Verarbeitungsaufgaben. In dieser Übung erstellen Sie einen *Einzelknotencluster* , um die in der Lab-Umgebung verwendeten Computeressourcen zu minimieren (in denen Ressourcen möglicherweise eingeschränkt werden). In einer Produktionsumgebung erstellen Sie in der Regel einen Cluster mit mehreren Workerknoten.
 
-> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 15.4 LTS **<u>ML</u>** oder einer höheren Runtimeversion in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und dieses Verfahren überspringen.
+> **Tipp**: Wenn Sie bereits über einen Cluster mit der Runtimeversion 16.4 LTS **<u>ML</u>** oder höher in Ihrem Azure Databricks-Arbeitsbereich verfügen, können Sie ihn verwenden, um diese Übung abzuschließen, und diesen Prozess überspringen.
 
 1. Navigieren Sie im Azure-Portal zur Ressourcengruppe **msl-*xxxxxxx***, die vom Skript erstellt wurde (oder zur Ressourcengruppe, die Ihren vorhandenen Azure Databricks-Arbeitsbereich enthält).
 1. Wählen Sie die Ressource Ihres Azure Databricks-Diensts aus (sie trägt den Namen **databricks-*xxxxxxx***, wenn Sie das Setupskript zum Erstellen verwendet haben).
@@ -64,7 +64,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
     - **Clustername**: Cluster des *Benutzernamens* (der Standardclustername)
     - **Richtlinie:** Unrestricted
     - **Maschinelles Lernen**: Aktiviert
-    - **Databricks Runtime**: 15.4 LTS
+    - **Databricks Runtime**: 16.4 LTS
     - **Photon-Beschleunigung verwenden**: <u>Nicht</u> ausgewählt
     - **Workertyp**: Standard_D4ds_v5
     - **Einzelner Knoten**: Aktiviert
