@@ -55,7 +55,7 @@ Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie
     - **Bereitstellungsname**: *gpt-4o*
     - **Bereitstellungstyp**: Standard
     - **Modellversion**: *Standardversion verwenden*
-    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
+    - **Ratenbegrenzung für Token pro Minute**: 10 Tsd.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
     
@@ -253,13 +253,15 @@ Der Parameter `seed` steuert die Reproduzierbarkeit des Feinabstimmungsauftrags.
    fine_tuned_model = response.fine_tuned_model
     ```
 
+4. Überprüfen Sie die JSON-Antwort, und notieren Sie sich den eindeutigen Namen, der im Feld `"fine_tuned_model"` generiert wurde. Dieser wird in der folgenden optionalen Aufgabe verwendet.
+
     >**HINWEIS:** Die Optimierung eines Modells kann mehr als 60 Minuten dauern, sodass Sie die Übung zu diesem Zeitpunkt abschließen und die Bereitstellung des Modells als optionale Aufgabe betrachten können, falls Sie Zeit dafür haben.
 
 ## [OPTIONAL] Bereitstellen eines optimierten Modells
 
 Da Sie nun über ein fein abgestimmtes Modell verfügen, können Sie es als benutzerdefiniertes Modell bereitstellen und wie jedes andere bereitgestellte Modell entweder im **Chat**-Playground von Azure AI Foundry oder über die Chatvervollständigungs-API verwenden.
 
-1. Führen Sie in einer neuen Zelle den folgenden Code aus, um Ihr optimiertes Modell bereitzustellen, und ersetzen Sie dabei die Platzhalter `<YOUR_SUBSCRIPTION_ID>`, `<YOUR_RESOURCE_GROUP_NAME>` und `<YOUR_AZURE_OPENAI_RESOURCE_NAME>`:
+1. Führen Sie in einer neuen Zelle den folgenden Code aus, um Ihr optimiertes Modell bereitzustellen, und ersetzen Sie dabei die Platzhalter `<YOUR_SUBSCRIPTION_ID>`, `<YOUR_RESOURCE_GROUP_NAME>`, `<YOUR_AZURE_OPENAI_RESOURCE_NAME>` und `<FINE_TUNED_MODEL>`:
    
     ```python
    import json
@@ -279,7 +281,7 @@ Da Sie nun über ein fein abgestimmtes Modell verfügen, können Sie es als benu
        "properties": {
            "model": {
                "format": "OpenAI",
-               "name": "gpt-4o-ft",
+               "name": "<FINE_TUNED_MODEL>",
                "version": "1"
            }
        }
@@ -323,7 +325,9 @@ Da Sie nun über ein fein abgestimmtes Modell verfügen, können Sie es als benu
 
    print(response.choices[0].message.content)
     ```
- 
+
+>**HINWEIS:** Es kann einige Minuten dauern, bis die optimierte Modellimplementierung abgeschlossen ist. Auf der Seite **Bereitstellungen** in Azure AI Foundry können Sie das überprüfen.
+
 ## Bereinigen
 
 Wenn Sie mit Ihrer Azure OpenAI-Ressource fertig sind, denken Sie daran, die Bereitstellung oder die gesamte Ressource im **Azure-Portal** auf `https://portal.azure.com` zu löschen.
