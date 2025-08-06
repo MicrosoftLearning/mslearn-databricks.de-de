@@ -57,7 +57,7 @@ Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie
     - **Bereitstellungsname**: *gpt-4o*
     - **Bereitstellungstyp**: Standard
     - **Modellversion**: *Standardversion verwenden*
-    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
+    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
     
@@ -65,7 +65,7 @@ Azure bietet ein webbasiertes Portal mit dem Namen **Azure AI Foundry**, das Sie
     - **Bereitstellungsname**: *text-embedding-ada-002*
     - **Bereitstellungstyp**: Standard
     - **Modellversion**: *Standardversion verwenden*
-    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
+    - **Ratenbegrenzung für Token pro Minute**: 10 TSD.\*
     - **Inhaltsfilter**: Standard
     - **Dynamische Quote aktivieren**: Deaktiviert
 
@@ -119,7 +119,7 @@ Azure Databricks ist eine verteilte Verarbeitungsplattform, die Apache Spark-*Cl
 1. In der ersten Codezelle geben Sie den folgenden Code ein und führen ihn aus, um die erforderlichen Bibliotheken zu installieren:
    
     ```python
-   %pip install langchain openai langchain_openai faiss-cpu
+   %pip install langchain openai langchain_openai langchain-community faiss-cpu
     ```
 
 1. Nachdem die Installation abgeschlossen ist, starten Sie den Kernel in einer neuen Zelle neu:
